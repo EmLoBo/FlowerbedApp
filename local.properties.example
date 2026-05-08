@@ -1,0 +1,7 @@
+# Copy this file to local.properties and fill in your values.
+# local.properties is gitignored — never commit real tokens.
+
+#sdk.ir=C\:\\Users\\YOUR_USER\\AppData\\Local\\Android\\Sdk
+
+
+TREFLE_TOKEN=your_token_here

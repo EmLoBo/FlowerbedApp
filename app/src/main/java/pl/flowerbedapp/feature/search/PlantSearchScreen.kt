@@ -1,0 +1,251 @@
+package pl.flowerbedapp.feature.search
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import pl.flowerbedapp.core.domain.model.SoilType
+import pl.flowerbedapp.core.domain.model.SunExposure
+import pl.flowerbedapp.ui.components.EmptyState
+import pl.flowerbedapp.ui.components.ErrorState
+import pl.flowerbedapp.ui.components.GardenChip
+import pl.flowerbedapp.ui.components.LoadingState
+import pl.flowerbedapp.ui.components.PlantCard
+import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedType
+import pl.flowerbedapp.ui.theme.Spacing
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun PlantSearchScreen(
+    onPlantClick: (Int) -> Unit,
+    onBack: () -> Unit,
+    viewModel: PlantSearchViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Find Plants", style = FlowerbedType.headlineMedium) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = FlowerbedColors.TextPrimary)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = FlowerbedColors.BackgroundDark,
+                    titleContentColor = FlowerbedColors.TextPrimary,
+                ),
+            )
+        },
+        containerColor = FlowerbedColors.BackgroundDark,
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .navigationBarsPadding(),
+            contentPadding = PaddingValues(bottom = Spacing.xl),
+        ) {
+
+            // ── Filter panel ───────────────────────────────────────────────
+            item {
+                FilterPanel(
+                    state       = state,
+                    onQueryChanged   = viewModel::onQueryChanged,
+                    onPhChanged      = viewModel::onPhChanged,
+                    onSunChanged     = viewModel::onSunExposureChanged,
+                    onSoilChanged    = viewModel::onSoilTypeChanged,
+                    onGpsClick       = viewModel::useDeviceLocation,
+                    onSearchClick    = viewModel::search,
+                )
+            }
+
+            // ── Results ────────────────────────────────────────────────────
+            when {
+                state.isLoading -> item {
+                    LoadingState(modifier = Modifier.fillMaxWidth().height(200.dp))
+                }
+                state.error != null -> item {
+                    ErrorState(
+                        message  = state.error!!,
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
+                    )
+                }
+                state.plants.isEmpty() -> item {
+                    EmptyState(
+                        message  = "No plants found\nTry adjusting your filters",
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
+                    )
+                }
+                else -> items(state.plants, key = { it.id }) { plant ->
+                    PlantCard(
+                        plant    = plant,
+                        onClick  = { onPlantClick(plant.id) },
+                        modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterPanel(
+    state: SearchUiState,
+    onQueryChanged: (String) -> Unit,
+    onPhChanged: (Float, Float) -> Unit,
+    onSunChanged: (SunExposure) -> Unit,
+    onSoilChanged: (SoilType) -> Unit,
+    onGpsClick: () -> Unit,
+    onSearchClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(FlowerbedColors.SurfaceDark, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+            .padding(Spacing.md),
+        verticalArrangement = Arrangement.spacedBy(Spacing.md),
+    ) {
+
+        // Search field
+        OutlinedTextField(
+            value         = state.query,
+            onValueChange = onQueryChanged,
+            modifier      = Modifier.fillMaxWidth(),
+            placeholder   = { Text("Search plants…", color = FlowerbedColors.TextSecondary) },
+            leadingIcon   = { Icon(Icons.Default.Search, null, tint = FlowerbedColors.GardenGreen) },
+            colors        = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor   = FlowerbedColors.GardenGreen,
+                unfocusedBorderColor = FlowerbedColors.SurfaceElevated,
+                focusedTextColor     = FlowerbedColors.TextPrimary,
+                unfocusedTextColor   = FlowerbedColors.TextPrimary,
+                cursorColor          = FlowerbedColors.GardenGreen,
+            ),
+            shape         = RoundedCornerShape(12.dp),
+            singleLine    = true,
+        )
+
+        // pH range
+        Column {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Soil pH", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+                Text(
+                    "${String.format("%.1f", state.phMin)} – ${String.format("%.1f", state.phMax)}",
+                    style = FlowerbedType.bodyMedium,
+                    color = FlowerbedColors.GardenGreen,
+                )
+            }
+            RangeSlider(
+                value         = state.phMin..state.phMax,
+                onValueChange = { range -> onPhChanged(range.start, range.endInclusive) },
+                valueRange    = 0f..14f,
+                steps         = 27,
+                colors        = SliderDefaults.colors(
+                    thumbColor        = FlowerbedColors.GardenGreen,
+                    activeTrackColor  = FlowerbedColors.GardenGreen,
+                    inactiveTrackColor = FlowerbedColors.SurfaceElevated,
+                ),
+            )
+        }
+
+        // Sun exposure chips
+        Column {
+            Text("☀️ Sun Exposure", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+            Spacer(Modifier.height(Spacing.xs))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                SunExposure.entries.forEach { sun ->
+                    GardenChip(
+                        label    = "${sun.emoji} ${sun.label}",
+                        selected = state.sunExposure == sun,
+                        onClick  = { onSunChanged(sun) },
+                    )
+                }
+            }
+        }
+
+        // Soil type chips
+        Column {
+            Text("🌍 Soil Type", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+            Spacer(Modifier.height(Spacing.xs))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                SoilType.entries.forEach { soil ->
+                    GardenChip(
+                        label    = "${soil.emoji} ${soil.label}",
+                        selected = state.soilType == soil,
+                        onClick  = { onSoilChanged(soil) },
+                    )
+                }
+            }
+        }
+
+        // Location row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text  = when {
+                    state.usingDeviceLocation -> "📍 Device GPS"
+                    state.latitude != null    -> "📍 Manual: ${"%.4f".format(state.latitude)}, ${"%.4f".format(state.longitude)}"
+                    else                      -> "📍 No location"
+                },
+                style = FlowerbedType.bodyMedium,
+                color = if (state.latitude != null) FlowerbedColors.GardenGreen else FlowerbedColors.TextSecondary,
+            )
+            IconButton(onClick = onGpsClick) {
+                Icon(Icons.Default.GpsFixed, "Use GPS", tint = FlowerbedColors.GardenGreen)
+            }
+        }
+
+        // Search button
+        Button(
+            onClick  = onSearchClick,
+            modifier = Modifier.fillMaxWidth(),
+            colors   = ButtonDefaults.buttonColors(containerColor = FlowerbedColors.GardenGreen),
+            shape    = RoundedCornerShape(12.dp),
+        ) {
+            Text("🌱 Search Plants", color = Color.Black, style = FlowerbedType.titleMedium)
+        }
+    }
+}

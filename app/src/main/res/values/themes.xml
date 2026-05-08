@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base theme used by MainActivity before Compose takes over -->
+    <style name="Theme.FlowerbedApp" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#0F0F0F</item>
+        <item name="android:statusBarColor">#00000000</item>
+        <item name="android:navigationBarColor">#0F0F0F</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!-- Splash screen theme -->
+    <style name="Theme.FlowerbedApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0F0F0F</item>
+        <item name="postSplashScreenTheme">@style/Theme.FlowerbedApp</item>
+    </style>
+</resources>
