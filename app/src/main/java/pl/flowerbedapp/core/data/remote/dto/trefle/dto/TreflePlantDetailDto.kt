@@ -12,7 +12,7 @@ data class TreflePlantDetailDto(
     @Json(name = "scientific_name")   val scientificName: String,
     @Json(name = "image_url")         val imageUrl: String?,
     @Json(name = "family_common_name") val familyCommonName: String?,
-    @Json(name = "genus")             val genus: String?,
+    @Json(name = "genus")             val genus: TrefleGenusDto?,
     @Json(name = "specifications")    val specifications: TrefleSpecDto?,
     @Json(name = "growth")            val growth: TrefleGrowthDto?,
 )

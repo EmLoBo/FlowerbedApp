@@ -27,7 +27,7 @@ fun TreflePlantDetailDto.toDomain() = Plant(
     scientificName   = scientificName,
     imageUrl         = imageUrl,
     familyCommonName = familyCommonName,
-    genus            = genus,
+    genus            = genus?.name,
     specifications   = specifications?.let {
         PlantSpecifications(
             averageHeightCm = it.averageHeight?.cm,
