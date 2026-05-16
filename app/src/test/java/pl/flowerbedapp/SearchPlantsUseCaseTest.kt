@@ -6,12 +6,15 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import pl.flowerbedapp.core.domain.model.GardenSearchParams
 import pl.flowerbedapp.core.domain.model.Plant
 import pl.flowerbedapp.core.domain.model.Result
+import pl.flowerbedapp.core.domain.model.SoilType
+import pl.flowerbedapp.core.domain.model.SunExposure
 import pl.flowerbedapp.core.domain.repository.PlantRepository
 import pl.flowerbedapp.core.domain.usecase.plant.SearchPlantsUseCase
 
-// ─── Domain use case tests — pure Kotlin, no Android ─────────────────────────
+// ─── Domain use case tests
 
 class SearchPlantsUseCaseTest {
 
@@ -19,10 +22,10 @@ class SearchPlantsUseCaseTest {
     private val useCase = SearchPlantsUseCase(repo)
 
     private val validParams = GardenSearchParams(
-        soilPhMin   = 5.5,
-        soilPhMax   = 7.0,
+        soilPhMin = 5.5,
+        soilPhMax = 7.0,
         sunExposure = SunExposure.PARTIAL_SUN,
-        soilType    = SoilType.LOAMY,
+        soilType = SoilType.LOAMY,
     )
 
     @Test
