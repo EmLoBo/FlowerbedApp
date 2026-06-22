@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,7 +14,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.flowerbedapp.core.domain.model.AlertSeverity
 import pl.flowerbedapp.core.domain.model.WeatherAlert
-import pl.flowerbedapp.ui.components.EmptyState
+import pl.flowerbedapp.ui.components.ErrorState
+import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.theme.FlowerbedColors
 import pl.flowerbedapp.ui.theme.FlowerbedType
@@ -31,24 +30,16 @@ fun WeatherScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Weather", style = FlowerbedType.headlineMedium) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = FlowerbedColors.TextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = FlowerbedColors.BackgroundDark, titleContentColor = FlowerbedColors.TextPrimary,
-                ),
-            )
-        },
+        topBar = { FlowerbedTopBar(title = "Weather", onBack = onBack) },
         containerColor = FlowerbedColors.BackgroundDark,
     ) { innerPadding ->
         when {
             state.isLoading -> LoadingState(modifier = Modifier.fillMaxSize().padding(innerPadding))
-            state.error != null -> EmptyState(state.error!!, modifier = Modifier.fillMaxSize().padding(innerPadding))
+            state.error != null -> ErrorState(
+                message  = state.error!!,
+                onRetry  = viewModel::load,
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+            )
             state.weather != null -> {
                 val weather = state.weather!!
                 LazyColumn(

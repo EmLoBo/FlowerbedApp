@@ -1,12 +1,10 @@
 package pl.flowerbedapp.feature.settings
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.theme.FlowerbedColors
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
@@ -15,20 +13,7 @@ import pl.flowerbedapp.ui.theme.Spacing
 @Composable
 fun SettingsScreen(onBack: () -> Unit) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Settings", style = FlowerbedType.headlineMedium) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = FlowerbedColors.TextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor    = FlowerbedColors.BackgroundDark,
-                    titleContentColor = FlowerbedColors.TextPrimary,
-                ),
-            )
-        },
+        topBar = { FlowerbedTopBar(title = "Settings", onBack = onBack) },
         containerColor = FlowerbedColors.BackgroundDark,
     ) { innerPadding ->
         Column(

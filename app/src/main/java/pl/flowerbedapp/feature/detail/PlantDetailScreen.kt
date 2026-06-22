@@ -5,7 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,7 +18,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import pl.flowerbedapp.core.domain.model.Plant
-import pl.flowerbedapp.ui.components.EmptyState
+import pl.flowerbedapp.ui.components.ErrorState
+import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.GardenChip
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.theme.FlowerbedColors
@@ -36,18 +36,9 @@ fun PlantDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        state.plant?.displayName ?: "Plant Detail",
-                        style = FlowerbedType.headlineMedium,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = FlowerbedColors.TextPrimary)
-                    }
-                },
+            FlowerbedTopBar(
+                title  = state.plant?.displayName ?: "Plant Detail",
+                onBack = onBack,
                 actions = {
                     if (state.plant != null) {
                         IconButton(onClick = { viewModel.saveToProject(1L) }) {
@@ -59,10 +50,6 @@ fun PlantDetailScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = FlowerbedColors.BackgroundDark,
-                    titleContentColor = FlowerbedColors.TextPrimary,
-                ),
             )
         },
         containerColor = FlowerbedColors.BackgroundDark,
@@ -71,9 +58,10 @@ fun PlantDetailScreen(
             state.isLoading -> LoadingState(
                 modifier = Modifier.fillMaxSize().padding(innerPadding)
             )
-            state.error != null -> EmptyState(
-                state.error!!,
-                modifier = Modifier.fillMaxSize().padding(innerPadding)
+            state.error != null -> ErrorState(
+                message  = state.error!!,
+                onRetry  = viewModel::load,
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
             )
             state.plant != null -> PlantDetailContent(
                 plant    = state.plant!!,

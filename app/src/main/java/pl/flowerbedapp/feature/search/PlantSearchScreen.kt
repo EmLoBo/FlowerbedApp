@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -31,8 +30,6 @@ import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -45,6 +42,7 @@ import pl.flowerbedapp.core.domain.model.SoilType
 import pl.flowerbedapp.core.domain.model.SunExposure
 import pl.flowerbedapp.ui.components.EmptyState
 import pl.flowerbedapp.ui.components.ErrorState
+import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.GardenChip
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.components.PlantCard
@@ -62,20 +60,7 @@ fun PlantSearchScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Find Plants", style = FlowerbedType.headlineMedium) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = FlowerbedColors.TextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = FlowerbedColors.BackgroundDark,
-                    titleContentColor = FlowerbedColors.TextPrimary,
-                ),
-            )
-        },
+        topBar = { FlowerbedTopBar(title = "Find Plants", onBack = onBack) },
         containerColor = FlowerbedColors.BackgroundDark,
     ) { innerPadding ->
         LazyColumn(
@@ -107,6 +92,7 @@ fun PlantSearchScreen(
                 state.error != null -> item {
                     ErrorState(
                         message  = state.error!!,
+                        onRetry  = viewModel::search,
                         modifier = Modifier.fillMaxWidth().height(200.dp),
                     )
                 }

@@ -32,9 +32,11 @@ class PlantDetailViewModel @Inject constructor(
     private val _state = MutableStateFlow(DetailUiState())
     val state: StateFlow<DetailUiState> = _state.asStateFlow()
 
-    init {
+    init { load() }
+
+    fun load() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, error = null) }
             when (val r = getDetail(plantId)) {
                 is Result.Success -> _state.update { it.copy(plant = r.data, isLoading = false) }
                 is Result.Error   -> _state.update { it.copy(error = r.message, isLoading = false) }

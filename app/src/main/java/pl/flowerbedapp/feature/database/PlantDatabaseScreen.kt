@@ -10,17 +10,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,10 +25,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.flowerbedapp.ui.components.EmptyState
 import pl.flowerbedapp.ui.components.ErrorState
+import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.components.PlantCard
 import pl.flowerbedapp.ui.theme.FlowerbedColors
-import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,20 +41,7 @@ fun PlantDatabaseScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Plant Database", style = FlowerbedType.headlineMedium) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = FlowerbedColors.TextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor    = FlowerbedColors.BackgroundDark,
-                    titleContentColor = FlowerbedColors.TextPrimary,
-                ),
-            )
-        },
+        topBar = { FlowerbedTopBar(title = "Plant Database", onBack = onBack) },
         containerColor = FlowerbedColors.BackgroundDark,
     ) { innerPadding ->
         LazyColumn(

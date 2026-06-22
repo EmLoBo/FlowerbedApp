@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
@@ -17,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.flowerbedapp.core.domain.model.Project
 import pl.flowerbedapp.ui.components.EmptyState
+import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.theme.FlowerbedColors
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
@@ -41,20 +41,7 @@ fun MyProjectsScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("My Projects", style = FlowerbedType.headlineMedium) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = FlowerbedColors.TextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = FlowerbedColors.BackgroundDark,
-                    titleContentColor = FlowerbedColors.TextPrimary,
-                ),
-            )
-        },
+        topBar = { FlowerbedTopBar(title = "My Projects", onBack = onBack) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick          = { showDialog = true },
