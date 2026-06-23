@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -18,11 +19,14 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
 import pl.flowerbedapp.ui.components.EmptyState
 import pl.flowerbedapp.ui.components.ErrorState
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
@@ -39,12 +43,27 @@ fun PlantDatabaseScreen(
     viewModel: PlantDatabaseViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val query by viewModel.query.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val layout    = listState.layoutInfo
+            val lastIndex = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastIndex to layout.totalItemsCount
+        }
+            .distinctUntilChanged()
+            .collect { (lastVisible, total) ->
+                if (total > 0 && lastVisible >= total - 3) viewModel.loadMore()
+            }
+    }
 
     Scaffold(
         topBar = { FlowerbedTopBar(title = "Plant Database", onBack = onBack) },
         containerColor = FlowerbedColors.BackgroundDark,
     ) { innerPadding ->
         LazyColumn(
+            state    = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -53,7 +72,7 @@ fun PlantDatabaseScreen(
         ) {
             item {
                 OutlinedTextField(
-                    value         = "",
+                    value         = query,
                     onValueChange = viewModel::onQueryChanged,
                     modifier      = Modifier.fillMaxWidth().padding(Spacing.md),
                     placeholder   = { Text("Search all plants…", color = FlowerbedColors.TextSecondary) },
@@ -74,17 +93,26 @@ fun PlantDatabaseScreen(
                     LoadingState(modifier = Modifier.fillMaxWidth().height(200.dp))
                 }
                 state.error != null -> item {
-                    ErrorState(state.error!!, modifier = Modifier.fillMaxWidth().height(200.dp))
+                    ErrorState(
+                        message  = state.error!!,
+                        onRetry  = viewModel::retry,
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
+                    )
                 }
                 state.plants.isEmpty() -> item {
                     EmptyState("No plants found", modifier = Modifier.fillMaxWidth().height(200.dp))
                 }
-                else -> items(state.plants, key = { it.id }) { plant ->
-                    PlantCard(
-                        plant    = plant,
-                        onClick  = { onPlantClick(plant.id) },
-                        modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
-                    )
+                else -> {
+                    items(state.plants, key = { it.id }) { plant ->
+                        PlantCard(
+                            plant    = plant,
+                            onClick  = { onPlantClick(plant.id) },
+                            modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                        )
+                    }
+                    if (state.isLoadingMore) {
+                        item { LoadingState(modifier = Modifier.fillMaxWidth().padding(Spacing.md)) }
+                    }
                 }
             }
         }
