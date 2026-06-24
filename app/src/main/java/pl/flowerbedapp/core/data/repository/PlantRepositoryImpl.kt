@@ -20,12 +20,12 @@ class PlantRepositoryImpl @Inject constructor(
     override suspend fun searchPlants(params: GardenSearchParams): Result<List<Plant>> =
         safeCall {
             api.filterPlants(
-                phMin       = params.soilPhMin,
-                phMax       = params.soilPhMax,
-                light       = params.sunExposure.lightValue,
-                soilTexture = params.soilType.textureValue,
-                query       = params.query.ifBlank { null },
-                page        = params.page,
+                // Trefle's light/soil_texture data is too sparse to filter on (a range filter
+                // excludes every plant with a null value → empty results). Filter by pH only.
+                phMinRange = ",${params.soilPhMax}",
+                phMaxRange = "${params.soilPhMin},",
+                query      = params.query.ifBlank { null },
+                page       = params.page,
             ).data.map { it.toDomain() }
         }
 
@@ -37,7 +37,6 @@ class PlantRepositoryImpl @Inject constructor(
     override suspend fun getSuggestions(query: String): pl.flowerbedapp.core.domain.model.Result<List<Plant>> =
         safeCall { api.searchPlants(query, page = 1).data.take(5).map { it.toDomain() } }
 
-    // Flow: emits Loading then one Success/Error — caller can flatMapLatest on query changes
     override fun browseAllPlants(query: String, page: Int): Flow<pl.flowerbedapp.core.domain.model.Result<List<Plant>>> = flow {
         emit(Result.Loading)
         emit(safeCall {

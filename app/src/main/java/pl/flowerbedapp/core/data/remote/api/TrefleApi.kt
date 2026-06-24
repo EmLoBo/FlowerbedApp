@@ -25,10 +25,10 @@ interface TrefleApi {
      */
     @GET("plants")
     suspend fun filterPlants(
-        @Query("filter[ph_minimum]")  phMin: Double? = null,
-        @Query("filter[ph_maximum]")  phMax: Double? = null,
-        @Query("filter[light]")       light: Int? = null,
-        @Query("filter[soil_texture]") soilTexture: Int? = null,
+        @Query("range[ph_minimum]")   phMinRange: String? = null,
+        @Query("range[ph_maximum]")   phMaxRange: String? = null,
+        @Query("range[light]")        lightRange: String? = null,
+        @Query("range[soil_texture]") soilRange:  String? = null,
         @Query("q")                   query: String? = null,
         @Query("page")                page: Int = 1,
     ): TreflePlantsResponse

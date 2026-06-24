@@ -3,11 +3,8 @@ package pl.flowerbedapp.feature.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,19 +35,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import pl.flowerbedapp.core.domain.model.SoilType
-import pl.flowerbedapp.core.domain.model.SunExposure
 import pl.flowerbedapp.ui.components.EmptyState
 import pl.flowerbedapp.ui.components.ErrorState
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
-import pl.flowerbedapp.ui.components.GardenChip
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.components.PlantCard
 import pl.flowerbedapp.ui.theme.FlowerbedColors
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantSearchScreen(
     onPlantClick: (Int) -> Unit,
@@ -77,8 +71,6 @@ fun PlantSearchScreen(
                     state       = state,
                     onQueryChanged   = viewModel::onQueryChanged,
                     onPhChanged      = viewModel::onPhChanged,
-                    onSunChanged     = viewModel::onSunExposureChanged,
-                    onSoilChanged    = viewModel::onSoilTypeChanged,
                     onGpsClick       = viewModel::useDeviceLocation,
                     onSearchClick    = viewModel::search,
                 )
@@ -114,14 +106,12 @@ fun PlantSearchScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FilterPanel(
     state: SearchUiState,
     onQueryChanged: (String) -> Unit,
     onPhChanged: (Float, Float) -> Unit,
-    onSunChanged: (SunExposure) -> Unit,
-    onSoilChanged: (SoilType) -> Unit,
     onGpsClick: () -> Unit,
     onSearchClick: () -> Unit,
 ) {
@@ -172,36 +162,6 @@ private fun FilterPanel(
                     inactiveTrackColor = FlowerbedColors.SurfaceElevated,
                 ),
             )
-        }
-
-        // Sun exposure chips
-        Column {
-            Text("☀️ Sun Exposure", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
-            Spacer(Modifier.height(Spacing.xs))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                SunExposure.entries.forEach { sun ->
-                    GardenChip(
-                        label    = "${sun.emoji} ${sun.label}",
-                        selected = state.sunExposure == sun,
-                        onClick  = { onSunChanged(sun) },
-                    )
-                }
-            }
-        }
-
-        // Soil type chips
-        Column {
-            Text("🌍 Soil Type", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
-            Spacer(Modifier.height(Spacing.xs))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-                SoilType.entries.forEach { soil ->
-                    GardenChip(
-                        label    = "${soil.emoji} ${soil.label}",
-                        selected = state.soilType == soil,
-                        onClick  = { onSoilChanged(soil) },
-                    )
-                }
-            }
         }
 
         // Location row
