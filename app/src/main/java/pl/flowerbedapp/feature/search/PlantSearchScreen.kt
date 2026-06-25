@@ -146,7 +146,7 @@ private fun FilterPanel(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Soil pH", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
                 Text(
-                    "${String.format("%.1f", state.phMin)} – ${String.format("%.1f", state.phMax)}",
+                    "${"%.1f".format(state.phMin)} – ${"%.1f".format(state.phMax)}",
                     style = FlowerbedType.bodyMedium,
                     color = FlowerbedColors.GardenGreen,
                 )
