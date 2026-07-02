@@ -23,6 +23,7 @@ import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.GardenChip
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
@@ -45,14 +46,14 @@ fun PlantDetailScreen(
                             Icon(
                                 Icons.Default.Favorite,
                                 "Save",
-                                tint = if (state.savedToProject) FlowerbedColors.GardenGreen else FlowerbedColors.TextSecondary,
+                                tint = if (state.savedToProject) FlowerbedColors.GardenGreen else FlowerbedTheme.colors.textSecondary,
                             )
                         }
                     }
                 },
             )
         },
-        containerColor = FlowerbedColors.BackgroundDark,
+        containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         when {
             state.isLoading -> LoadingState(
@@ -91,8 +92,8 @@ private fun PlantDetailContent(plant: Plant, modifier: Modifier = Modifier) {
         )
 
         Column(modifier = Modifier.padding(Spacing.lg)) {
-            Text(plant.displayName, style = FlowerbedType.displayLarge, color = FlowerbedColors.TextPrimary)
-            Text(plant.scientificName, style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+            Text(plant.displayName, style = FlowerbedType.displayLarge, color = FlowerbedTheme.colors.textPrimary)
+            Text(plant.scientificName, style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
 
             plant.familyCommonName?.let {
                 Spacer(Modifier.height(Spacing.sm))
@@ -123,13 +124,13 @@ private fun PlantDetailContent(plant: Plant, modifier: Modifier = Modifier) {
 
                 if (growth.bloomMonths.isNotEmpty()) {
                     Spacer(Modifier.height(Spacing.sm))
-                    Text("🌸 Blooms:", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
-                    Text(growth.bloomMonths.joinToString(", "), color = FlowerbedColors.TextPrimary, style = FlowerbedType.bodyMedium)
+                    Text("🌸 Blooms:", style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
+                    Text(growth.bloomMonths.joinToString(", "), color = FlowerbedTheme.colors.textPrimary, style = FlowerbedType.bodyMedium)
                 }
                 if (growth.growthMonths.isNotEmpty()) {
                     Spacer(Modifier.height(Spacing.xs))
-                    Text("🌿 Growing:", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
-                    Text(growth.growthMonths.joinToString(", "), color = FlowerbedColors.TextPrimary, style = FlowerbedType.bodyMedium)
+                    Text("🌿 Growing:", style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
+                    Text(growth.growthMonths.joinToString(", "), color = FlowerbedTheme.colors.textPrimary, style = FlowerbedType.bodyMedium)
                 }
             }
 
@@ -155,7 +156,7 @@ private fun InfoRow(emoji: String, label: String, value: String) {
     ) {
         Text(emoji, style = FlowerbedType.bodyMedium)
         Spacer(Modifier.width(Spacing.sm))
-        Text(label, style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary, modifier = Modifier.weight(1f))
-        Text(value, style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextPrimary)
+        Text(label, style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary, modifier = Modifier.weight(1f))
+        Text(value, style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textPrimary)
     }
 }

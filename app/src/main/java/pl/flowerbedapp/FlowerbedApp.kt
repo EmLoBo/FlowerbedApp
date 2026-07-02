@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.SideEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
@@ -22,12 +23,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FlowerbedTheme {
-                // Make status bar transparent, icons light — suits the dark garden theme
+                // Transparent status bar; icon tint follows the theme (dark icons in light mode)
+                val darkTheme = isSystemInDarkTheme()
                 val systemUiController = rememberSystemUiController()
                 SideEffect {
                     systemUiController.setSystemBarsColor(
                         color         = FlowerbedColors.BackgroundDark.copy(alpha = 0f),
-                        darkIcons     = false,
+                        darkIcons     = !darkTheme,
                     )
                 }
 

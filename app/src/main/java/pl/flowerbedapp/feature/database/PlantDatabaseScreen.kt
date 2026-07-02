@@ -33,6 +33,7 @@ import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.components.PlantCard
 import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.Spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +61,7 @@ fun PlantDatabaseScreen(
 
     Scaffold(
         topBar = { FlowerbedTopBar(title = "Plant Database", onBack = onBack) },
-        containerColor = FlowerbedColors.BackgroundDark,
+        containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         LazyColumn(
             state    = listState,
@@ -75,13 +76,13 @@ fun PlantDatabaseScreen(
                     value         = query,
                     onValueChange = viewModel::onQueryChanged,
                     modifier      = Modifier.fillMaxWidth().padding(Spacing.md),
-                    placeholder   = { Text("Search all plants…", color = FlowerbedColors.TextSecondary) },
+                    placeholder   = { Text("Search all plants…", color = FlowerbedTheme.colors.textSecondary) },
                     leadingIcon   = { Icon(Icons.Default.Search, null, tint = FlowerbedColors.GardenGreen) },
                     colors        = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor   = FlowerbedColors.GardenGreen,
-                        unfocusedBorderColor = FlowerbedColors.SurfaceElevated,
-                        focusedTextColor     = FlowerbedColors.TextPrimary,
-                        unfocusedTextColor   = FlowerbedColors.TextPrimary,
+                        unfocusedBorderColor = FlowerbedTheme.colors.surfaceElevated,
+                        focusedTextColor     = FlowerbedTheme.colors.textPrimary,
+                        unfocusedTextColor   = FlowerbedTheme.colors.textPrimary,
                     ),
                     shape  = RoundedCornerShape(12.dp),
                     singleLine = true,

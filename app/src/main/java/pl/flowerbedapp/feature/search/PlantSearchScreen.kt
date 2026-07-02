@@ -41,6 +41,7 @@ import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.components.PlantCard
 import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
@@ -55,7 +56,7 @@ fun PlantSearchScreen(
 
     Scaffold(
         topBar = { FlowerbedTopBar(title = "Find Plants", onBack = onBack) },
-        containerColor = FlowerbedColors.BackgroundDark,
+        containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -118,7 +119,7 @@ private fun FilterPanel(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(FlowerbedColors.SurfaceDark, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+            .background(FlowerbedTheme.colors.surface, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .padding(Spacing.md),
         verticalArrangement = Arrangement.spacedBy(Spacing.md),
     ) {
@@ -128,13 +129,13 @@ private fun FilterPanel(
             value         = state.query,
             onValueChange = onQueryChanged,
             modifier      = Modifier.fillMaxWidth(),
-            placeholder   = { Text("Search plants…", color = FlowerbedColors.TextSecondary) },
+            placeholder   = { Text("Search plants…", color = FlowerbedTheme.colors.textSecondary) },
             leadingIcon   = { Icon(Icons.Default.Search, null, tint = FlowerbedColors.GardenGreen) },
             colors        = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor   = FlowerbedColors.GardenGreen,
-                unfocusedBorderColor = FlowerbedColors.SurfaceElevated,
-                focusedTextColor     = FlowerbedColors.TextPrimary,
-                unfocusedTextColor   = FlowerbedColors.TextPrimary,
+                unfocusedBorderColor = FlowerbedTheme.colors.surfaceElevated,
+                focusedTextColor     = FlowerbedTheme.colors.textPrimary,
+                unfocusedTextColor   = FlowerbedTheme.colors.textPrimary,
                 cursorColor          = FlowerbedColors.GardenGreen,
             ),
             shape         = RoundedCornerShape(12.dp),
@@ -144,7 +145,7 @@ private fun FilterPanel(
         // pH range
         Column {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Soil pH", style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+                Text("Soil pH", style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
                 Text(
                     "${"%.1f".format(state.phMin)} – ${"%.1f".format(state.phMax)}",
                     style = FlowerbedType.bodyMedium,
@@ -159,7 +160,7 @@ private fun FilterPanel(
                 colors        = SliderDefaults.colors(
                     thumbColor        = FlowerbedColors.GardenGreen,
                     activeTrackColor  = FlowerbedColors.GardenGreen,
-                    inactiveTrackColor = FlowerbedColors.SurfaceElevated,
+                    inactiveTrackColor = FlowerbedTheme.colors.surfaceElevated,
                 ),
             )
         }
@@ -177,7 +178,7 @@ private fun FilterPanel(
                     else                      -> "📍 No location"
                 },
                 style = FlowerbedType.bodyMedium,
-                color = if (state.latitude != null) FlowerbedColors.GardenGreen else FlowerbedColors.TextSecondary,
+                color = if (state.latitude != null) FlowerbedColors.GardenGreen else FlowerbedTheme.colors.textSecondary,
             )
             IconButton(onClick = onGpsClick) {
                 Icon(Icons.Default.GpsFixed, "Use GPS", tint = FlowerbedColors.GardenGreen)

@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
@@ -14,7 +16,7 @@ import pl.flowerbedapp.ui.theme.Spacing
 fun SettingsScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = { FlowerbedTopBar(title = "Settings", onBack = onBack) },
-        containerColor = FlowerbedColors.BackgroundDark,
+        containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -25,14 +27,14 @@ fun SettingsScreen(onBack: () -> Unit) {
         ) {
             Text("Account", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
             Text("Log in to unlock premium features: unlimited saved projects, AI plant recommendations, and personalized alerts.",
-                style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+                style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
             Button(onClick = { /* navigate to login */ }, colors = ButtonDefaults.buttonColors(containerColor = FlowerbedColors.GardenGreen)) {
-                Text("Log in / Sign up", color = FlowerbedColors.BackgroundDark)
+                Text("Log in / Sign up", color = Color.Black)
             }
-            HorizontalDivider(color = FlowerbedColors.SurfaceElevated)
+            HorizontalDivider(color = FlowerbedTheme.colors.surfaceElevated)
             Text("About", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
             Text("Flowerbed v1.0.0\nPlant data: Trefle.io\nWeather: eDWIN agrometeo API",
-                style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+                style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
         }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,6 +19,7 @@ import pl.flowerbedapp.core.domain.model.Project
 import pl.flowerbedapp.ui.components.EmptyState
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
@@ -46,12 +48,12 @@ fun MyProjectsScreen(
             FloatingActionButton(
                 onClick          = { showDialog = true },
                 containerColor   = FlowerbedColors.GardenGreen,
-                contentColor     = FlowerbedColors.BackgroundDark,
+                contentColor     = Color.Black,
             ) {
                 Icon(Icons.Default.Add, "New project")
             }
         },
-        containerColor = FlowerbedColors.BackgroundDark,
+        containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         if (projects.isEmpty()) {
             EmptyState(
@@ -80,16 +82,16 @@ private fun ProjectCard(project: Project, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape    = RoundedCornerShape(16.dp),
-        colors   = CardDefaults.cardColors(containerColor = FlowerbedColors.SurfaceElevated),
+        colors   = CardDefaults.cardColors(containerColor = FlowerbedTheme.colors.surfaceElevated),
     ) {
         Row(
             modifier = Modifier.padding(Spacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(project.name, style = FlowerbedType.titleMedium, color = FlowerbedColors.TextPrimary)
+                Text(project.name, style = FlowerbedType.titleMedium, color = FlowerbedTheme.colors.textPrimary)
                 if (project.description.isNotBlank()) {
-                    Text(project.description, style = FlowerbedType.bodyMedium, color = FlowerbedColors.TextSecondary)
+                    Text(project.description, style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
                 }
                 Text(
                     "${project.plants.size} plants",
@@ -110,7 +112,7 @@ private fun NewProjectDialog(onConfirm: (String, String) -> Unit, onDismiss: () 
     var desc by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New Flowerbed Project", color = FlowerbedColors.TextPrimary) },
+        title = { Text("New Flowerbed Project", color = FlowerbedTheme.colors.textPrimary) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                 OutlinedTextField(
@@ -136,6 +138,6 @@ private fun NewProjectDialog(onConfirm: (String, String) -> Unit, onDismiss: () 
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
         },
-        containerColor = FlowerbedColors.SurfaceDark,
+        containerColor = FlowerbedTheme.colors.surface,
     )
 }

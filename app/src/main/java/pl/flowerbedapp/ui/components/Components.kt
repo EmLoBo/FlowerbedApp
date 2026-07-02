@@ -76,7 +76,7 @@ fun PlantCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape     = RoundedCornerShape(16.dp),
-        colors    = CardDefaults.cardColors(containerColor = FlowerbedColors.SurfaceElevated),
+        colors    = CardDefaults.cardColors(containerColor = FlowerbedTheme.colors.surfaceElevated),
         elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Row(modifier = Modifier.height(100.dp)) {
@@ -94,7 +94,7 @@ fun PlantCard(
                         .matchParentSize()
                         .background(
                             Brush.horizontalGradient(
-                                listOf(Color.Transparent, FlowerbedColors.SurfaceElevated),
+                                listOf(Color.Transparent, FlowerbedTheme.colors.surfaceElevated),
                                 startX = 60f,
                             )
                         )
@@ -110,14 +110,14 @@ fun PlantCard(
                 Text(
                     text     = plant.displayName,
                     style    = FlowerbedType.titleMedium,
-                    color    = FlowerbedColors.TextPrimary,
+                    color    = FlowerbedTheme.colors.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text     = plant.scientificName,
                     style    = FlowerbedType.bodyMedium,
-                    color    = FlowerbedColors.TextSecondary,
+                    color    = FlowerbedTheme.colors.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -144,15 +144,15 @@ fun GardenChip(
             label     = { Text(label, style = FlowerbedType.labelSmall) },
             modifier  = modifier,
             colors    = FilterChipDefaults.filterChipColors(
-                containerColor         = FlowerbedColors.SurfaceElevated,
+                containerColor         = FlowerbedTheme.colors.surfaceElevated,
                 selectedContainerColor = FlowerbedColors.GardenGreen.copy(alpha = 0.3f),
-                labelColor             = FlowerbedColors.TextSecondary,
+                labelColor             = FlowerbedTheme.colors.textSecondary,
                 selectedLabelColor     = FlowerbedColors.GardenGreen,
             ),
             border = FilterChipDefaults.filterChipBorder(
                 enabled              = true,
                 selected             = selected,
-                borderColor          = FlowerbedColors.SurfaceElevated,
+                borderColor          = FlowerbedTheme.colors.surfaceElevated,
                 selectedBorderColor  = FlowerbedColors.GardenGreen,
             ),
         )
@@ -160,10 +160,10 @@ fun GardenChip(
         Box(
             modifier = modifier
                 .clip(RoundedCornerShape(20.dp))
-                .background(FlowerbedColors.SurfaceElevated)
+                .background(FlowerbedTheme.colors.surfaceElevated)
                 .padding(horizontal = Spacing.sm, vertical = Spacing.xs),
         ) {
-            Text(label, style = FlowerbedType.labelSmall, color = FlowerbedColors.TextSecondary)
+            Text(label, style = FlowerbedType.labelSmall, color = FlowerbedTheme.colors.textSecondary)
         }
     }
 }
@@ -269,7 +269,7 @@ fun ErrorState(
                         onClick = onRetry,
                         colors  = ButtonDefaults.buttonColors(containerColor = FlowerbedColors.GardenGreen),
                     ) {
-                        Text("Try again", color = FlowerbedColors.BackgroundDark)
+                        Text("Try again", color = Color.Black)
                     }
                 }
             }
@@ -329,7 +329,7 @@ fun EmptyState(message: String, modifier: Modifier = Modifier) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Canvas(modifier = Modifier.size(72.dp)) { drawPlant(growth = 1f) }
             Spacer(Modifier.height(Spacing.sm))
-            Text(message, color = FlowerbedColors.TextSecondary, style = FlowerbedType.bodyMedium)
+            Text(message, color = FlowerbedTheme.colors.textSecondary, style = FlowerbedType.bodyMedium)
         }
     }
 }
@@ -350,14 +350,14 @@ fun FlowerbedTopBar(
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = FlowerbedColors.TextPrimary,
+                    tint = FlowerbedTheme.colors.textPrimary,
                 )
             }
         },
         actions = actions,
         colors  = TopAppBarDefaults.topAppBarColors(
-            containerColor    = FlowerbedColors.BackgroundDark,
-            titleContentColor = FlowerbedColors.TextPrimary,
+            containerColor    = FlowerbedTheme.colors.background,
+            titleContentColor = FlowerbedTheme.colors.textPrimary,
         ),
     )
 }
@@ -367,7 +367,7 @@ fun IconTextRow(
     icon: ImageVector,
     text: String,
     modifier: Modifier = Modifier,
-    tint: Color = FlowerbedColors.TextSecondary,
+    tint: Color = FlowerbedTheme.colors.textSecondary,
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Icon(imageVector = icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))

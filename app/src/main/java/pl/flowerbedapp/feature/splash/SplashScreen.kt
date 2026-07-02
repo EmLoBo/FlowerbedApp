@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
@@ -42,7 +43,7 @@ fun SplashScreen(onFinished: () -> Unit) {
     Box(
         modifier          = Modifier
             .fillMaxSize()
-            .background(FlowerbedColors.BackgroundDark),
+            .background(FlowerbedTheme.colors.background),
         contentAlignment  = Alignment.Center,
     ) {
         Column(
@@ -61,13 +62,13 @@ fun SplashScreen(onFinished: () -> Unit) {
             Text(
                 text  = "Flowerbed",
                 style = FlowerbedType.displayLarge,
-                color = FlowerbedColors.TextPrimary,
+                color = FlowerbedTheme.colors.textPrimary,
             )
             Spacer(Modifier.height(Spacing.sm))
             Text(
                 text  = "Your garden starts here",
                 style = FlowerbedType.bodyMedium,
-                color = FlowerbedColors.TextSecondary,
+                color = FlowerbedTheme.colors.textSecondary,
             )
         }
     }

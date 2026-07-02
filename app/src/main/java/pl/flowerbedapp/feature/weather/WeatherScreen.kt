@@ -18,6 +18,7 @@ import pl.flowerbedapp.ui.components.ErrorState
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.LoadingState
 import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
 
@@ -31,7 +32,7 @@ fun WeatherScreen(
 
     Scaffold(
         topBar = { FlowerbedTopBar(title = "Weather", onBack = onBack) },
-        containerColor = FlowerbedColors.BackgroundDark,
+        containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         when {
             state.isLoading -> LoadingState(modifier = Modifier.fillMaxSize().padding(innerPadding))
@@ -64,7 +65,7 @@ fun WeatherScreen(
                         }
                     }
                     if (weather.alerts.isNotEmpty()) {
-                        item { Text("⚠️ Active Alerts", style = FlowerbedType.titleMedium, color = FlowerbedColors.TextPrimary) }
+                        item { Text("⚠️ Active Alerts", style = FlowerbedType.titleMedium, color = FlowerbedTheme.colors.textPrimary) }
                         items(weather.alerts) { alert -> AlertCard(alert) }
                     }
                 }

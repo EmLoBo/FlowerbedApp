@@ -148,23 +148,23 @@ fun MainScreen(
                 Text(
                     text  = "Flowerbed",
                     style = FlowerbedType.headlineMedium,
-                    color = FlowerbedColors.TextPrimary,
+                    color = Color.White,
                 )
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { onNavigateTo(Screen.Settings) }) {
-                    Icon(Icons.Default.Settings, "Settings", tint = FlowerbedColors.TextPrimary)
+                    Icon(Icons.Default.Settings, "Settings", tint = Color.White)
                 }
                 OutlinedButton(onClick = { /* login flow */ }) {
                     Icon(
                         Icons.Default.AccountCircle,
                         contentDescription = null,
-                        tint     = FlowerbedColors.TextPrimary,
+                        tint     = Color.White,
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(Spacing.xs))
                     Text(
                         text  = if (uiState.isLoggedIn) "My Account" else "Log in",
-                        color = FlowerbedColors.TextPrimary,
+                        color = Color.White,
                     )
                 }
             }
@@ -209,11 +209,11 @@ fun MainScreen(
                         Icon(
                             Icons.Default.Image,
                             contentDescription = "Change background",
-                            tint     = FlowerbedColors.TextPrimary,
+                            tint     = Color.White,
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(Spacing.xs))
-                        Text("Change background", color = FlowerbedColors.TextPrimary, style = FlowerbedType.bodyMedium)
+                        Text("Change background", color = Color.White, style = FlowerbedType.bodyMedium)
                     }
                 }
             }
