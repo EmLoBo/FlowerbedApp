@@ -1,14 +1,19 @@
 package pl.flowerbedapp.feature.detail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,7 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 import pl.flowerbedapp.core.domain.model.Plant
+import pl.flowerbedapp.core.domain.model.Project
 import pl.flowerbedapp.ui.components.ErrorState
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.GardenChip
@@ -34,6 +41,23 @@ fun PlantDetailScreen(
     viewModel: PlantDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val projects by viewModel.projects.collectAsStateWithLifecycle()
+
+    var showProjectPicker by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    if (showProjectPicker) {
+        ProjectPickerSheet(
+            projects  = projects,
+            onDismiss = { showProjectPicker = false },
+            onPick    = { project ->
+                viewModel.saveToProject(project.id)
+                showProjectPicker = false
+                scope.launch { snackbarHostState.showSnackbar("Added to ${project.name}") }
+            },
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -42,17 +66,18 @@ fun PlantDetailScreen(
                 onBack = onBack,
                 actions = {
                     if (state.plant != null) {
-                        IconButton(onClick = { viewModel.saveToProject(1L) }) {
+                        IconButton(onClick = { showProjectPicker = true }) {
                             Icon(
-                                Icons.Default.Favorite,
-                                "Save",
-                                tint = if (state.savedToProject) FlowerbedColors.GardenGreen else FlowerbedTheme.colors.textSecondary,
+                                Icons.Default.PlaylistAdd,
+                                contentDescription = "Add to project",
+                                tint = FlowerbedTheme.colors.textPrimary,
                             )
                         }
                     }
                 },
             )
         },
+        snackbarHost   = { SnackbarHost(snackbarHostState) },
         containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         when {
@@ -143,6 +168,59 @@ private fun PlantDetailContent(plant: Plant, modifier: Modifier = Modifier) {
                 spec.maximumHeightCm?.let { InfoRow("⬆️", "Maximum height", "${it.toInt()} cm") }
                 spec.lifespan?.let { InfoRow("♻️", "Lifespan", it) }
                 spec.toxicity?.let { if (it.isNotBlank()) InfoRow("⚠️", "Toxicity", it) }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProjectPickerSheet(
+    projects: List<Project>,
+    onDismiss: () -> Unit,
+    onPick: (Project) -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor   = FlowerbedTheme.colors.surface,
+    ) {
+        Column(modifier = Modifier.padding(bottom = Spacing.xl)) {
+            Text(
+                text     = "Add to project",
+                style    = FlowerbedType.titleMedium,
+                color    = FlowerbedTheme.colors.textPrimary,
+                modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md),
+            )
+
+            if (projects.isEmpty()) {
+                Text(
+                    text     = "No projects yet.\nCreate one in My Projects first.",
+                    style    = FlowerbedType.bodyMedium,
+                    color    = FlowerbedTheme.colors.textSecondary,
+                    modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+                )
+            } else {
+                projects.forEach { project ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onPick(project) }
+                            .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text     = project.name,
+                            style    = FlowerbedType.bodyMedium,
+                            color    = FlowerbedTheme.colors.textPrimary,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            text  = "${project.plants.size} plants",
+                            style = FlowerbedType.labelSmall,
+                            color = FlowerbedColors.GardenGreen,
+                        )
+                    }
+                }
             }
         }
     }

@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import pl.flowerbedapp.feature.database.PlantDatabaseScreen
 import pl.flowerbedapp.feature.detail.PlantDetailScreen
 import pl.flowerbedapp.feature.main.MainScreen
+import pl.flowerbedapp.feature.projectdetail.ProjectDetailScreen
 import pl.flowerbedapp.feature.projects.MyProjectsScreen
 import pl.flowerbedapp.feature.search.PlantSearchScreen
 import pl.flowerbedapp.feature.settings.SettingsScreen
@@ -29,6 +30,9 @@ sealed class Screen(val route: String) {
     data object Settings     : Screen("settings")
     data object PlantDetail  : Screen("plant_detail/{plantId}") {
         fun route(plantId: Int) = "plant_detail/$plantId"
+    }
+    data object ProjectDetail : Screen("project_detail/{projectId}") {
+        fun route(projectId: Long) = "project_detail/$projectId"
     }
 }
 
@@ -84,7 +88,20 @@ fun FlowerbedNavHost(navController: NavHostController) {
         }
 
         composable(Screen.MyProjects.route) {
-            MyProjectsScreen(onBack = { navController.navigateUp() })
+            MyProjectsScreen(
+                onProjectClick = { id -> navController.navigate(Screen.ProjectDetail.route(id)) },
+                onBack         = { navController.navigateUp() },
+            )
+        }
+
+        composable(
+            route     = Screen.ProjectDetail.route,
+            arguments = listOf(navArgument("projectId") { type = NavType.LongType }),
+        ) {
+            ProjectDetailScreen(
+                onPlantClick = { id -> navController.navigate(Screen.PlantDetail.route(id)) },
+                onBack       = { navController.navigateUp() },
+            )
         }
 
         composable(Screen.Weather.route) {

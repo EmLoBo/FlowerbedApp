@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import pl.flowerbedapp.core.domain.model.Plant
+import pl.flowerbedapp.core.domain.model.Project
 import pl.flowerbedapp.core.domain.model.Result
 import pl.flowerbedapp.core.domain.usecase.plant.GetPlantDetailUseCase
 import pl.flowerbedapp.core.domain.usecase.project.AddPlantToProjectUseCase
@@ -31,6 +32,10 @@ class PlantDetailViewModel @Inject constructor(
     private val plantId: Int = checkNotNull(handle["plantId"])
     private val _state = MutableStateFlow(DetailUiState())
     val state: StateFlow<DetailUiState> = _state.asStateFlow()
+
+    // Backs the "add to project" picker
+    val projects: StateFlow<List<Project>> = observeProjects()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     init { load() }
 

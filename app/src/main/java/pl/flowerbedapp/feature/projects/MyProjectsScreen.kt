@@ -1,5 +1,6 @@
 package pl.flowerbedapp.feature.projects
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +27,7 @@ import pl.flowerbedapp.ui.theme.Spacing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProjectsScreen(
+    onProjectClick: (Long) -> Unit,
     onBack: () -> Unit,
     viewModel: MyProjectsViewModel = hiltViewModel(),
 ) {
@@ -70,7 +72,11 @@ fun MyProjectsScreen(
                 verticalArrangement = Arrangement.spacedBy(Spacing.sm),
             ) {
                 items(projects, key = { it.id }) { project ->
-                    ProjectCard(project = project, onDelete = { viewModel.deleteProject(project.id) })
+                    ProjectCard(
+                        project  = project,
+                        onClick  = { onProjectClick(project.id) },
+                        onDelete = { viewModel.deleteProject(project.id) },
+                    )
                 }
             }
         }
@@ -78,9 +84,11 @@ fun MyProjectsScreen(
 }
 
 @Composable
-private fun ProjectCard(project: Project, onDelete: () -> Unit) {
+private fun ProjectCard(project: Project, onClick: () -> Unit, onDelete: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape    = RoundedCornerShape(16.dp),
         colors   = CardDefaults.cardColors(containerColor = FlowerbedTheme.colors.surfaceElevated),
     ) {
