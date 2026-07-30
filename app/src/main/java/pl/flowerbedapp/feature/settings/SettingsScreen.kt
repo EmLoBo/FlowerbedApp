@@ -33,7 +33,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
             HorizontalDivider(color = FlowerbedTheme.colors.surfaceElevated)
             Text("About", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
-            Text("Flowerbed v1.0.0\nPlant data: Trefle.io\nWeather: eDWIN agrometeo API",
+            Text("Flowerbed v1.0.0\nPlant data: Trefle.io\nWeather: eDWIN agrometeo API\nDefault background: Polina Silivanova / Unsplash",
                 style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
         }
     }

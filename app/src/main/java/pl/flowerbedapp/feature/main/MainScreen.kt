@@ -1,8 +1,10 @@
 package pl.flowerbedapp.feature.main
 
 import android.Manifest
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +44,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import pl.flowerbedapp.R
 import pl.flowerbedapp.core.domain.model.AlertSeverity
 import pl.flowerbedapp.core.domain.model.Weather
 import pl.flowerbedapp.ui.navigation.Screen
@@ -85,9 +90,21 @@ fun MainScreen(
     }
 
 
+    val context = LocalContext.current
+    // OpenDocument (not GetContent) so we can persist read access across app restarts
     val imagePicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri -> viewModel.setBackground(uri?.toString()) }
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+            }
+        }
+        viewModel.setBackground(uri?.toString())
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -97,21 +114,18 @@ fun MainScreen(
                 model            = uiState.backgroundUri,
                 contentDescription = null,
                 contentScale     = ContentScale.Crop,
+                // Stale/unreadable URI (e.g. picked before persistable access, or photo deleted)
+                // falls back to the default instead of rendering nothing
+                error            = painterResource(R.drawable.bg_lavender_default),
                 modifier         = Modifier.fillMaxSize(),
             )
         } else {
-            // Default dark green gradient simulating pine background
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0xFF1B5E20),
-                                Color(0xFF0F0F0F),
-                            )
-                        )
-                    )
+            // Default background: lavender field (Polina Silivanova / Unsplash)
+            Image(
+                painter            = painterResource(R.drawable.bg_lavender_default),
+                contentDescription = null,
+                contentScale       = ContentScale.Crop,
+                modifier           = Modifier.fillMaxSize(),
             )
         }
 
@@ -202,7 +216,7 @@ fun MainScreen(
                     modifier = Modifier
                         .clip(RoundedCornerShape(24.dp))
                         .background(FlowerbedColors.Translucent)
-                        .clickable { imagePicker.launch("image/*") }
+                        .clickable { imagePicker.launch(arrayOf("image/*")) }
                         .padding(horizontal = Spacing.md, vertical = Spacing.sm),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
