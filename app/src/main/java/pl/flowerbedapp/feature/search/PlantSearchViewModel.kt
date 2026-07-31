@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,9 @@ import javax.inject.Inject
 data class SearchUiState(
     val plants: List<Plant> = emptyList(),
     val isLoading: Boolean = false,
+    val isLoadingMore: Boolean = false,
     val error: String? = null,
+    val endReached: Boolean = false,
     val query: String = "",
     val phMin: Float = 5.5f,
     val phMax: Float = 7.0f,
@@ -46,6 +49,9 @@ class PlantSearchViewModel @Inject constructor(
     val state: StateFlow<SearchUiState> = _state.asStateFlow()
 
     private val queryFlow = MutableStateFlow("")
+
+    private var page = 1
+    private var loadJob: Job? = null
 
     init {
         @OptIn(FlowPreview::class)
@@ -78,24 +84,62 @@ class PlantSearchViewModel @Inject constructor(
         }
     }
 
+    /** New search: always starts over from page 1 and replaces the results. */
     fun search() {
-        viewModelScope.launch {
-            val s = _state.value
-            _state.update { it.copy(isLoading = true, error = null) }
-            val params = GardenSearchParams(
-                latitude = s.latitude,
-                longitude = s.longitude,
-                soilPhMin = s.phMin.toDouble(),
-                soilPhMax = s.phMax.toDouble(),
-                sunExposure = s.sunExposure,
-                soilType = s.soilType,
-                query = s.query,
-            )
-            when (val result = searchPlants(params)) {
-                is Result.Success -> _state.update { it.copy(plants = result.data, isLoading = false) }
-                is Result.Error   -> _state.update { it.copy(error = result.message, isLoading = false) }
-                Result.Loading    -> Unit
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            _state.update {
+                it.copy(isLoading = true, isLoadingMore = false, error = null, endReached = false)
             }
+            runSearch(pageToLoad = 1, append = false)
         }
     }
+
+    /** Called when the user scrolls near the end — appends the next page. */
+    fun loadMore() {
+        val s = _state.value
+        if (s.isLoading || s.isLoadingMore || s.endReached || s.error != null) return
+        loadJob = viewModelScope.launch {
+            _state.update { it.copy(isLoadingMore = true) }
+            runSearch(pageToLoad = page + 1, append = true)
+        }
+    }
+
+    private suspend fun runSearch(pageToLoad: Int, append: Boolean) {
+        val s = _state.value
+        val params = GardenSearchParams(
+            latitude = s.latitude,
+            longitude = s.longitude,
+            soilPhMin = s.phMin.toDouble(),
+            soilPhMax = s.phMax.toDouble(),
+            sunExposure = s.sunExposure,
+            soilType = s.soilType,
+            query = s.query,
+            page = pageToLoad,
+        )
+        when (val result = searchPlants(params)) {
+            is Result.Success -> {
+                page = pageToLoad
+                _state.update {
+                    it.copy(
+                        plants        = if (append) it.plants + result.data else result.data,
+                        isLoading     = false,
+                        isLoadingMore = false,
+                        endReached    = result.data.size < PAGE_SIZE,
+                    )
+                }
+            }
+            is Result.Error -> _state.update {
+                it.copy(
+                    isLoading     = false,
+                    isLoadingMore = false,
+                    // keep the already-loaded results if only the extra page failed
+                    error         = if (append) it.error else result.message,
+                )
+            }
+            Result.Loading -> Unit
+        }
+    }
+
+    private companion object { const val PAGE_SIZE = 20 }
 }

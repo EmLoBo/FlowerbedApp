@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GpsFixed
@@ -28,13 +29,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.distinctUntilChanged
 import pl.flowerbedapp.ui.components.EmptyState
 import pl.flowerbedapp.ui.components.ErrorState
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
@@ -53,12 +57,26 @@ fun PlantSearchScreen(
     viewModel: PlantSearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val layout    = listState.layoutInfo
+            val lastIndex = layout.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastIndex to layout.totalItemsCount
+        }
+            .distinctUntilChanged()
+            .collect { (lastVisible, total) ->
+                if (total > 0 && lastVisible >= total - 3) viewModel.loadMore()
+            }
+    }
 
     Scaffold(
         topBar = { FlowerbedTopBar(title = "Find Plants", onBack = onBack) },
         containerColor = FlowerbedTheme.colors.background,
     ) { innerPadding ->
         LazyColumn(
+            state    = listState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -95,12 +113,17 @@ fun PlantSearchScreen(
                         modifier = Modifier.fillMaxWidth().height(200.dp),
                     )
                 }
-                else -> items(state.plants, key = { it.id }) { plant ->
-                    PlantCard(
-                        plant    = plant,
-                        onClick  = { onPlantClick(plant.id) },
-                        modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
-                    )
+                else -> {
+                    items(state.plants, key = { it.id }) { plant ->
+                        PlantCard(
+                            plant    = plant,
+                            onClick  = { onPlantClick(plant.id) },
+                            modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                        )
+                    }
+                    if (state.isLoadingMore) {
+                        item { LoadingState(modifier = Modifier.fillMaxWidth().padding(Spacing.md)) }
+                    }
                 }
             }
         }
