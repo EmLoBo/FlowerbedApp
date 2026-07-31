@@ -55,8 +55,11 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import pl.flowerbedapp.core.domain.model.Plant
@@ -195,21 +198,64 @@ private fun DrawScope.drawPlant(growth: Float) {
     val maxStem  = size.height * 0.62f
     val stemTopY = baseY - maxStem * growth
 
+    // Proportions are fractions of the canvas height (they match the original 4/18/9 dp at
+    // 72.dp) so the same plant renders correctly at any size — logo, loader, empty state.
+    val stroke  = size.height * 0.055f
+    val leafLen = size.height * 0.25f
+    val leafWid = size.height * 0.125f
+
     // Stem grows upward; its tip is always where the top leaf sits
     drawLine(
         color       = FlowerbedColors.GardenGreen,
         start       = Offset(centerX, baseY),
         end         = Offset(centerX, stemTopY),
-        strokeWidth = 4.dp.toPx(),
+        strokeWidth = stroke,
         cap         = StrokeCap.Round,
     )
 
     // Lower leaf — right side, fixed partway up the stem
-    growingLeaf(centerX, baseY - maxStem * 0.45f, growth, appearAt = 0.45f, angleDeg = -40f,  color = FlowerbedColors.GardenGreen)
+    growingLeaf(centerX, baseY - maxStem * 0.45f, growth, 0.45f, -40f,  FlowerbedColors.GardenGreen, leafLen, leafWid)
     // 3-petal head riding the growing tip
-    growingLeaf(centerX, stemTopY, growth, appearAt = 0.62f, angleDeg = -140f, color = FlowerbedColors.GardenGreenLight)
-    growingLeaf(centerX, stemTopY, growth, appearAt = 0.62f, angleDeg = -40f,  color = FlowerbedColors.GardenGreenLight)
-    growingLeaf(centerX, stemTopY, growth, appearAt = 0.62f, angleDeg = -90f,  color = FlowerbedColors.GardenGreenLight)
+    growingLeaf(centerX, stemTopY, growth, 0.62f, -140f, FlowerbedColors.GardenGreenLight, leafLen, leafWid)
+    growingLeaf(centerX, stemTopY, growth, 0.62f, -40f,  FlowerbedColors.GardenGreenLight, leafLen, leafWid)
+    growingLeaf(centerX, stemTopY, growth, 0.62f, -90f,  FlowerbedColors.GardenGreenLight, leafLen, leafWid)
+}
+
+/**
+ * "Flowerbed" wordmark where the flower stands in for the letter "l".
+ * The flower is sized from the text style, so it scales with the typography.
+ */
+@Composable
+fun FlowerbedWordmark(
+    modifier: Modifier = Modifier,
+    style: TextStyle = FlowerbedType.headlineMedium,
+    color: Color = FlowerbedColors.TextPrimary,
+) {
+    val letterHeight = with(LocalDensity.current) { style.fontSize.toDp() }
+
+    Row(modifier = modifier, verticalAlignment = Alignment.Bottom) {
+        Text("F", style = style, color = color)
+        Canvas(
+            modifier = Modifier
+                // lifted slightly so the stem sits on the text baseline, not the descender line
+                .padding(bottom = letterHeight * 0.12f)
+                .size(width = letterHeight * 0.55f, height = letterHeight),
+        ) { drawPlant(growth = 1f) }
+        Text("owerbed", style = style, color = color)
+    }
+}
+
+@Composable
+fun FlowerbedLogo(modifier: Modifier = Modifier, size: Dp = 36.dp) {
+    Row(
+        modifier              = modifier,
+        verticalAlignment     = Alignment.Bottom,   // all three grow from the same ground line
+        horizontalArrangement = Arrangement.spacedBy(size * 0.08f),
+    ) {
+        Canvas(Modifier.size(size * 0.62f)) { drawPlant(growth = 1f) }
+        Canvas(Modifier.size(size))         { drawPlant(growth = 1f) }
+        Canvas(Modifier.size(size * 0.78f)) { drawPlant(growth = 1f) }
+    }
 }
 
 // Almond-shaped leaf pointing along +x; shared by the loading and error plants.
@@ -227,10 +273,12 @@ private fun DrawScope.growingLeaf(
     appearAt: Float,
     angleDeg: Float,
     color: Color,
+    leafLen: Float,
+    leafWid: Float,
 ) {
     if (growth < appearAt) return
     val scale = ((growth - appearAt) / 0.25f).coerceIn(0f, 1f)
-    val leaf  = leafPath(18.dp.toPx() * scale, 9.dp.toPx() * scale)
+    val leaf  = leafPath(leafLen * scale, leafWid * scale)
 
     withTransform({
         translate(centerX, attachY)
@@ -395,6 +443,36 @@ private val previewPlant = Plant(
 @Composable
 private fun FlowerbedTopBarPreview() {
     FlowerbedTheme { FlowerbedTopBar(title = "Find Plants", onBack = {}) }
+}
+
+@Preview(name = "Logo", showBackground = true, backgroundColor = 0xFF0F0F0F)
+@Composable
+private fun FlowerbedLogoPreview() {
+    FlowerbedTheme {
+        Row(
+            modifier              = Modifier.padding(Spacing.md),
+            verticalAlignment     = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.lg),
+        ) {
+            FlowerbedLogo(size = 36.dp)   // header size
+            FlowerbedLogo(size = 72.dp)   // splash size
+        }
+    }
+}
+
+@Preview(name = "Wordmark", showBackground = true, backgroundColor = 0xFF0F0F0F)
+@Composable
+private fun FlowerbedWordmarkPreview() {
+    FlowerbedTheme {
+        Column(
+            modifier          = Modifier.padding(Spacing.md),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md),
+        ) {
+            FlowerbedWordmark(style = FlowerbedType.titleMedium)
+            FlowerbedWordmark(style = FlowerbedType.headlineMedium)
+            FlowerbedWordmark(style = FlowerbedType.displayLarge)
+        }
+    }
 }
 
 @Preview(name = "PlantCard", showBackground = true, backgroundColor = 0xFF0F0F0F)

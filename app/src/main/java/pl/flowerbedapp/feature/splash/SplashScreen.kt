@@ -8,10 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Grass
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,7 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import pl.flowerbedapp.ui.theme.FlowerbedColors
+import pl.flowerbedapp.ui.components.FlowerbedLogo
 import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
 import pl.flowerbedapp.ui.theme.Spacing
@@ -52,12 +48,7 @@ fun SplashScreen(onFinished: () -> Unit) {
                 .alpha(alpha.value)
                 .scale(scale.value),
         ) {
-            Icon(
-                imageVector      = Icons.Default.Grass,
-                contentDescription = "Flowerbed logo",
-                tint             = FlowerbedColors.GardenGreen,
-                modifier         = Modifier.size(96.dp),
-            )
+            FlowerbedLogo(size = 72.dp)
             Spacer(Modifier.height(Spacing.md))
             Text(
                 text  = "Flowerbed",

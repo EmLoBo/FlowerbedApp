@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
@@ -57,6 +56,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import pl.flowerbedapp.R
 import pl.flowerbedapp.core.domain.model.AlertSeverity
 import pl.flowerbedapp.core.domain.model.Weather
+import pl.flowerbedapp.ui.components.FlowerbedWordmark
 import pl.flowerbedapp.ui.navigation.Screen
 import pl.flowerbedapp.ui.theme.FlowerbedColors
 import pl.flowerbedapp.ui.theme.FlowerbedType
@@ -152,15 +152,7 @@ fun MainScreen(
                     .padding(horizontal = Spacing.md, vertical = Spacing.sm),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector      = Icons.Default.Grass,
-                    contentDescription = "Flowerbed",
-                    tint             = FlowerbedColors.GardenGreen,
-                    modifier         = Modifier.size(36.dp),
-                )
-                Spacer(Modifier.width(Spacing.sm))
-                Text(
-                    text  = "Flowerbed",
+                FlowerbedWordmark(
                     style = FlowerbedType.headlineMedium,
                     color = Color.White,
                 )
