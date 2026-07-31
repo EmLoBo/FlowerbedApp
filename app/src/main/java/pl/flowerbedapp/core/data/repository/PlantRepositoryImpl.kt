@@ -31,8 +31,11 @@ class PlantRepositoryImpl @Inject constructor(
 
 
 
+    // Keep the id we successfully queried with: Trefle's detail payload reports a different
+    // id (species vs plant), and storing that one makes later /plants/{id} lookups resolve
+    // to a completely different plant.
     override suspend fun getPlantDetail(id: Int): pl.flowerbedapp.core.domain.model.Result<Plant> =
-        safeCall { api.getPlantById(id).data.toDomain() }
+        safeCall { api.getPlantById(id).data.toDomain().copy(id = id) }
 
     override suspend fun getSuggestions(query: String): pl.flowerbedapp.core.domain.model.Result<List<Plant>> =
         safeCall { api.searchPlants(query, page = 1).data.take(5).map { it.toDomain() } }

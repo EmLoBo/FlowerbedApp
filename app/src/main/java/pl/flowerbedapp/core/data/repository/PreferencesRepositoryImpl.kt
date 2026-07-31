@@ -28,6 +28,7 @@ class PreferencesRepositoryImpl @Inject constructor(
         val LOGGED_IN = booleanPreferencesKey("logged_in")
         val LAST_LAT = doublePreferencesKey("last_lat")
         val LAST_LON = doublePreferencesKey("last_lon")
+        val DARK_THEME = booleanPreferencesKey("dark_theme")
     }
 
 
@@ -43,6 +44,14 @@ class PreferencesRepositoryImpl @Inject constructor(
             val lon = prefs[Keys.LAST_LON]
             if (lat != null && lon != null) lat to lon else null
         }
+
+    // Absent key stays null on purpose — that means "follow the system setting"
+    override fun observeDarkTheme(): Flow<Boolean?> =
+        ctx.dataStore.data.map { it[Keys.DARK_THEME] }
+
+    override suspend fun setDarkTheme(value: Boolean) {
+        ctx.dataStore.edit { it[Keys.DARK_THEME] = value }
+    }
 
     override suspend fun setBackgroundUri(uri: String?) {
         ctx.dataStore.edit { if (uri == null) it.remove(Keys.BG_URI) else it[Keys.BG_URI] = uri }
