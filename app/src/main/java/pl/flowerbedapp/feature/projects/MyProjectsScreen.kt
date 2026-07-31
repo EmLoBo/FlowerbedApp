@@ -75,7 +75,9 @@ fun MyProjectsScreen(
                     ProjectCard(
                         project  = project,
                         onClick  = { onProjectClick(project.id) },
-                        onDelete = { viewModel.deleteProject(project.id) },
+                        // Favorites is permanent — no delete action for it
+                        onDelete = if (project.isFavorites) null
+                                   else { { viewModel.deleteProject(project.id) } },
                     )
                 }
             }
@@ -84,7 +86,7 @@ fun MyProjectsScreen(
 }
 
 @Composable
-private fun ProjectCard(project: Project, onClick: () -> Unit, onDelete: () -> Unit) {
+private fun ProjectCard(project: Project, onClick: () -> Unit, onDelete: (() -> Unit)?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,8 +109,10 @@ private fun ProjectCard(project: Project, onClick: () -> Unit, onDelete: () -> U
                     color = FlowerbedColors.GardenGreen,
                 )
             }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error)
+            if (onDelete != null) {
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error)
+                }
             }
         }
     }

@@ -21,10 +21,23 @@ interface ProjectDao {
     @Query("SELECT * FROM projects WHERE id = :id")
     suspend fun getProjectWithPlants(id: Long): ProjectWithPlants?
 
+    @Query("SELECT * FROM projects WHERE is_favorites = 1 LIMIT 1")
+    suspend fun getFavoritesProject(): ProjectEntity?
+
+    /** Plant ids sitting in the favorites project — drives the ♥ badge on plant cards. */
+    @Query(
+        """
+        SELECT plant_id FROM project_plants
+        WHERE project_id = (SELECT id FROM projects WHERE is_favorites = 1 LIMIT 1)
+        """
+    )
+    fun observeFavoritePlantIds(): Flow<List<Int>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProject(project: ProjectEntity): Long
 
-    @Query("DELETE FROM projects WHERE id = :id")
+    // `is_favorites = 0` guard makes the favorites project impossible to delete
+    @Query("DELETE FROM projects WHERE id = :id AND is_favorites = 0")
     suspend fun deleteProject(id: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

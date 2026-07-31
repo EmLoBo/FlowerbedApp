@@ -18,7 +18,9 @@ class MyProjectsViewModel @Inject constructor(
     private val delete: DeleteProjectUseCase,
 ) : ViewModel() {
 
+    // Favorites is pinned to the top; the rest keep their newest-first order
     val projects: StateFlow<List<Project>> = observe()
+        .map { list -> list.sortedByDescending { it.isFavorites } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun createProject(name: String, description: String) {

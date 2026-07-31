@@ -62,7 +62,8 @@ fun FlowerbedNavHost(navController: NavHostController) {
 
         composable(Screen.Main.route) {
             MainScreen(
-                onNavigateTo = { screen -> navController.navigate(screen.route) },
+                onNavigateTo  = { screen -> navController.navigate(screen.route) },
+                onOpenProject = { id -> navController.navigate(Screen.ProjectDetail.route(id)) },
             )
         }
 

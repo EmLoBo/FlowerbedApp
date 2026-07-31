@@ -11,7 +11,7 @@ import pl.flowerbedapp.core.data.local.entity.ProjectPlantEntity
 
 @Database(
     entities  = [ProjectEntity::class, ProjectPlantEntity::class],
-    version   = 1,
+    version   = 2,
     exportSchema = true,
 )
 abstract class FlowerbedDatabase : RoomDatabase() {

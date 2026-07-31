@@ -7,4 +7,5 @@ data class Project(
     val createdAt: Long = System.currentTimeMillis(),
     val plants: List<Plant> = emptyList(),
     val searchParams: GardenSearchParams? = null,
+    val isFavorites: Boolean = false,
 )

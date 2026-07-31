@@ -11,6 +11,7 @@ fun Project.toEntity() = ProjectEntity(
     name        = name,
     description = description,
     createdAt   = createdAt,
+    isFavorites = isFavorites,
 )
 
 fun Plant.toProjectPlantEntity(projectId: Long, json: String) = ProjectPlantEntity(
@@ -25,4 +26,5 @@ fun ProjectWithPlants.toDomain(deserialize: (String) -> Plant?): Project = Proje
     description = project.description,
     createdAt   = project.createdAt,
     plants      = plants.mapNotNull { deserialize(it.plantJson) },
+    isFavorites = project.isFavorites,
 )

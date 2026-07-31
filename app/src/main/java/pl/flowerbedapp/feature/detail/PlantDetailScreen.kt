@@ -6,6 +6,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -42,6 +44,7 @@ fun PlantDetailScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val projects by viewModel.projects.collectAsStateWithLifecycle()
+    val isFavorite by viewModel.isFavorite.collectAsStateWithLifecycle()
 
     var showProjectPicker by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -66,6 +69,16 @@ fun PlantDetailScreen(
                 onBack = onBack,
                 actions = {
                     if (state.plant != null) {
+                        IconButton(onClick = viewModel::toggleFavorite) {
+                            Icon(
+                                imageVector = if (isFavorite) Icons.Default.Favorite
+                                              else Icons.Default.FavoriteBorder,
+                                contentDescription = if (isFavorite) "Remove from favorites"
+                                                     else "Add to favorites",
+                                tint = if (isFavorite) FlowerbedColors.GardenGreen
+                                       else FlowerbedTheme.colors.textPrimary,
+                            )
+                        }
                         IconButton(onClick = { showProjectPicker = true }) {
                             Icon(
                                 Icons.Default.PlaylistAdd,

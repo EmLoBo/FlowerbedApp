@@ -66,6 +66,7 @@ import pl.flowerbedapp.ui.theme.Spacing
 @Composable
 fun MainScreen(
     onNavigateTo: (Screen) -> Unit,
+    onOpenProject: (Long) -> Unit,
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -180,8 +181,21 @@ fun MainScreen(
                 contentPadding      = androidx.compose.foundation.layout.PaddingValues(horizontal = Spacing.md),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
             ) {
+                uiState.favoritesProjectId?.let { favoritesId ->
+                    item {
+                        MainTabChip(
+                            emoji   = "❤",
+                            label   = "Favorites",
+                            onClick = { onOpenProject(favoritesId) },
+                        )
+                    }
+                }
                 items(mainTabs) { tab ->
-                    MainTabChip(tab = tab, onClick = { onNavigateTo(tab.screen) })
+                    MainTabChip(
+                        emoji   = tab.emoji,
+                        label   = tab.label,
+                        onClick = { onNavigateTo(tab.screen) },
+                    )
                 }
             }
 
@@ -331,7 +345,7 @@ private val mainTabs = listOf(
 )
 
 @Composable
-private fun MainTabChip(tab: MainTab, onClick: () -> Unit) {
+private fun MainTabChip(emoji: String, label: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
@@ -340,9 +354,9 @@ private fun MainTabChip(tab: MainTab, onClick: () -> Unit) {
             .padding(horizontal = Spacing.md, vertical = Spacing.sm),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(tab.emoji, fontSize = 16.sp)
+            Text(emoji, fontSize = 16.sp)
             Spacer(Modifier.width(Spacing.xs))
-            Text(tab.label, color = Color.White, style = FlowerbedType.bodyMedium)
+            Text(label, color = Color.White, style = FlowerbedType.bodyMedium)
         }
     }
 }

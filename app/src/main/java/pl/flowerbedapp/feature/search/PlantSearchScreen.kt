@@ -57,6 +57,7 @@ fun PlantSearchScreen(
     viewModel: PlantSearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val favoriteIds by viewModel.favoriteIds.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
 
     LaunchedEffect(listState) {
@@ -116,9 +117,10 @@ fun PlantSearchScreen(
                 else -> {
                     items(state.plants, key = { it.id }) { plant ->
                         PlantCard(
-                            plant    = plant,
-                            onClick  = { onPlantClick(plant.id) },
-                            modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                            plant      = plant,
+                            onClick    = { onPlantClick(plant.id) },
+                            isFavorite = plant.id in favoriteIds,
+                            modifier   = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
                         )
                     }
                     if (state.isLoadingMore) {

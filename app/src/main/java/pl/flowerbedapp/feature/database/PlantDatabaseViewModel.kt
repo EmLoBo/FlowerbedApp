@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import pl.flowerbedapp.core.domain.model.Plant
 import pl.flowerbedapp.core.domain.model.Result
 import pl.flowerbedapp.core.domain.usecase.plant.BrowsePlantsUseCase
+import pl.flowerbedapp.core.domain.usecase.project.ObserveFavoritePlantIdsUseCase
 import javax.inject.Inject
 
 data class DatabaseUiState(
@@ -23,7 +24,11 @@ data class DatabaseUiState(
 @HiltViewModel
 class PlantDatabaseViewModel @Inject constructor(
     private val browse: BrowsePlantsUseCase,
+    observeFavoriteIds: ObserveFavoritePlantIdsUseCase,
 ) : ViewModel() {
+
+    val favoriteIds: StateFlow<Set<Int>> = observeFavoriteIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query.asStateFlow()

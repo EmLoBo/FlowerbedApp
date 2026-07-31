@@ -10,4 +10,6 @@ data class ProjectEntity(
     val name: String,
     val description: String,
     @ColumnInfo(name = "created_at") val createdAt: Long,
+    // Marks the single auto-created "favorites" project: pinned and not deletable
+    @ColumnInfo(name = "is_favorites") val isFavorites: Boolean = false,
 )

@@ -30,6 +30,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -73,6 +74,7 @@ fun PlantCard(
     plant: Plant,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
 ) {
     Card(
         modifier  = modifier
@@ -128,6 +130,18 @@ fun PlantCard(
                     Spacer(Modifier.height(Spacing.xs))
                     GardenChip(label = family)
                 }
+            }
+
+            if (isFavorite) {
+                Icon(
+                    imageVector        = Icons.Default.Favorite,
+                    contentDescription = "In favorites",
+                    tint               = FlowerbedColors.GardenGreen,
+                    modifier           = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = Spacing.md)
+                        .size(18.dp),
+                )
             }
         }
     }

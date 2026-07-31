@@ -5,6 +5,7 @@ import com.squareup.moshi.adapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.flowerbedapp.core.data.local.dao.ProjectDao
+import pl.flowerbedapp.core.data.local.entity.ProjectEntity
 import pl.flowerbedapp.core.data.mapper.toDomain
 import pl.flowerbedapp.core.data.mapper.toEntity
 import pl.flowerbedapp.core.data.mapper.toProjectPlantEntity
@@ -46,4 +47,31 @@ class ProjectRepositoryImpl @Inject constructor(
 
     override suspend fun removePlantFromProject(projectId: Long, plantId: Int) =
         dao.deletePlant(projectId, plantId)
+
+    override suspend fun getOrCreateFavorites(): Long =
+        dao.getFavoritesProject()?.id ?: dao.insertProject(
+            ProjectEntity(
+                name        = FAVORITES_NAME,
+                description = "",
+                createdAt   = System.currentTimeMillis(),
+                isFavorites = true,
+            )
+        )
+
+    override fun observeFavoritePlantIds(): Flow<Set<Int>> =
+        dao.observeFavoritePlantIds().map { it.toSet() }
+
+    override suspend fun toggleFavorite(plant: Plant) {
+        val favoritesId = getOrCreateFavorites()
+        val alreadySaved = dao.getProjectWithPlants(favoritesId)
+            ?.plants.orEmpty()
+            .any { it.plantId == plant.id }
+
+        if (alreadySaved) dao.deletePlant(favoritesId, plant.id)
+        else addPlantToProject(favoritesId, plant)
+    }
+
+    private companion object {
+        const val FAVORITES_NAME = "❤ Favorites"
+    }
 }
