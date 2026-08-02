@@ -66,7 +66,7 @@ fun SettingsScreen(
             }
             HorizontalDivider(color = FlowerbedTheme.colors.surfaceElevated)
             Text("About", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
-            Text("Flowerbed v1.0.0\nPlant data: Trefle.io\nWeather: eDWIN agrometeo API\nDefault background: Polina Silivanova / Unsplash",
+            Text("Flowerbed v1.0.0\nPlant data: Trefle.io\nWeather: Open-Meteo (CC BY 4.0)\nWarnings: Źródłem danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy\nDefault background: Polina Silivanova / Unsplash",
                 style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
         }
     }

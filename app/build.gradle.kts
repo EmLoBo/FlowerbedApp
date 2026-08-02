@@ -29,7 +29,8 @@ android {
 
         buildConfigField("String", "TREFLE_BASE_URL", "\"https://trefle.io/api/v1/\"")
         buildConfigField("String", "TREFLE_TOKEN",    "\"${localProps["TREFLE_TOKEN"] ?: ""}\"")
-        buildConfigField("String", "EDWIN_BASE_URL",  "\"https://www.edwin.gov.pl/meteo-api/\"")
+        buildConfigField("String", "OPEN_METEO_BASE_URL", "\"https://api.open-meteo.com/\"")
+        buildConfigField("String", "IMGW_BASE_URL",       "\"https://danepubliczne.imgw.pl/\"")
     }
 
     buildTypes {

@@ -83,10 +83,11 @@ fun MainScreen(
     }
 
     LaunchedEffect(Unit) {
+        // Only ask when we don't have it. Weather itself is loaded in MainViewModel.init,
+        // and this effect re-runs whenever the screen re-enters composition (e.g. on back
+        // navigation) — so it must not touch the already-loaded weather state.
         if (!locationPermissions.allPermissionsGranted) {
             locationPermissions.launchMultiplePermissionRequest()
-        }else{
-            viewModel.onPermissionDenied()
         }
     }
 

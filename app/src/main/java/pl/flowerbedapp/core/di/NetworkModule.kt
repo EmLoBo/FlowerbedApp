@@ -10,7 +10,8 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import pl.flowerbedapp.BuildConfig
-import pl.flowerbedapp.core.data.remote.api.EdwinApi
+import pl.flowerbedapp.core.data.remote.api.ImgwApi
+import pl.flowerbedapp.core.data.remote.api.OpenMeteoApi
 import pl.flowerbedapp.core.data.remote.api.TrefleApi
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -57,11 +58,20 @@ object NetworkModule {
             .create(TrefleApi::class.java)
 
     @Provides @Singleton
-    fun provideEdwinApi(moshi: Moshi): EdwinApi =
+    fun provideOpenMeteoApi(moshi: Moshi): OpenMeteoApi =
         Retrofit.Builder()
-            .baseUrl(BuildConfig.EDWIN_BASE_URL)
+            .baseUrl(BuildConfig.OPEN_METEO_BASE_URL)
             .client(baseOkHttp())
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(EdwinApi::class.java)
+            .create(OpenMeteoApi::class.java)
+
+    @Provides @Singleton
+    fun provideImgwApi(moshi: Moshi): ImgwApi =
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.IMGW_BASE_URL)
+            .client(baseOkHttp())
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(ImgwApi::class.java)
 }
