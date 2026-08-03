@@ -1,0 +1,15 @@
+# Shell scripts must keep LF endings, otherwise they fail on Linux/CI runners
+# (a stray CR ends up inside variables, e.g. java receives "-Xmx64m" with quotes)
+gradlew     text eol=lf
+*.sh        text eol=lf
+
+# Windows batch files need CRLF
+gradlew.bat text eol=crlf
+*.bat       text eol=crlf
+
+# Never run line-ending conversion on binaries — it corrupts them
+*.jar  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
