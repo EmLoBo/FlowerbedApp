@@ -1,4 +1,5 @@
 # Flowerbed
+![tests](https://github.com/EmLoBo/FlowerbedApp/actions/workflows/flowerbed-tests.yml/badge.svg)
 
 An Android app for planning your garden — search plants, build flowerbed projects, and watch the weather that affects them.
 
@@ -6,7 +7,8 @@ An Android app for planning your garden — search plants, build flowerbed proje
 
 - **Plant search & database** — browse and look up species via the [Trefle](https://trefle.io) API.
 - **My Projects** — group plants into named flowerbeds you're planning.
-- **Weather** — current conditions and gardening-relevant alerts for your location, powered by the Polish meteo service [Edwin](https://www.edwin.gov.pl).
+- **Weather** — current conditions from [Open-Meteo](https://open-meteo.com), plus official
+  [IMGW](https://danepubliczne.imgw.pl) meteo warnings matched to your voivodeship.
 - **Custom background** — pick any image from your gallery to personalise the home screen.
 
 ## Stack
