@@ -70,6 +70,13 @@ android {
     }
 }
 
+// Room writes each DB version's schema here — needed later to write real migrations
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
+}
+
 dependencies {
     // Core
     implementation(libs.core.ktx)

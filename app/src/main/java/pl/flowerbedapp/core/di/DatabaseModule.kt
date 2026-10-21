@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import pl.flowerbedapp.core.data.local.FlowerbedDatabase
+import pl.flowerbedapp.core.data.local.dao.PlantDao
 import pl.flowerbedapp.core.data.local.dao.ProjectDao
 
 import javax.inject.Singleton
@@ -25,6 +26,9 @@ object DatabaseModule {
 
     @Provides
     fun provideProjectDao(db: FlowerbedDatabase): ProjectDao = db.projectDao()
+
+    @Provides
+    fun providePlantDao(db: FlowerbedDatabase): PlantDao = db.plantDao()
 }
 
 
