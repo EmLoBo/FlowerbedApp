@@ -32,8 +32,7 @@ data class SearchUiState(
     val isLoadingMore: Boolean = false,
     val error: String? = null,
     val endReached: Boolean = false,
-    val query: String = "",
-    val phMin: Float = 5.5f,
+     val phMin: Float = 5.5f,
     val phMax: Float = 7.0f,
     val sunExposure: SunExposure = SunExposure.PARTIAL_SUN,
     val soilType: SoilType = SoilType.LOAMY,
@@ -55,24 +54,25 @@ class PlantSearchViewModel @Inject constructor(
     val favoriteIds: StateFlow<Set<Int>> = observeFavoriteIds()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
-    private val queryFlow = MutableStateFlow("")
+    // Single source of truth for the typed text. The text field reads this directly, so it
+    // updates on every keystroke — the debounce below must only gate the *search*, never
+    // what the field displays.
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query.asStateFlow()
 
     private var page = 1
     private var loadJob: Job? = null
 
     init {
         @OptIn(FlowPreview::class)
-        queryFlow
+        _query
             .debounce(450L)
             .distinctUntilChanged()
-            .onEach { q ->
-                _state.update { it.copy(query = q) }
-                if (q.length >= 2 || q.isEmpty()) search()
-            }
+            .onEach { q -> if (q.length >= 2 || q.isEmpty()) search() }
             .launchIn(viewModelScope)
     }
 
-    fun onQueryChanged(q: String) { queryFlow.value = q }
+    fun onQueryChanged(q: String) { _query.value = q }
     fun onPhChanged(min: Float, max: Float) = _state.update { it.copy(phMin = min, phMax = max) }
     fun onSunExposureChanged(s: SunExposure) = _state.update { it.copy(sunExposure = s) }
     fun onSoilTypeChanged(t: SoilType) = _state.update { it.copy(soilType = t) }
@@ -121,7 +121,7 @@ class PlantSearchViewModel @Inject constructor(
             soilPhMax = s.phMax.toDouble(),
             sunExposure = s.sunExposure,
             soilType = s.soilType,
-            query = s.query,
+            query = _query.value,
             page = pageToLoad,
         )
         when (val result = searchPlants(params)) {

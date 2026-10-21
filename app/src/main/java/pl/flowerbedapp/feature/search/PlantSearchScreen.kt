@@ -57,6 +57,7 @@ fun PlantSearchScreen(
     viewModel: PlantSearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val query by viewModel.query.collectAsStateWithLifecycle()
     val favoriteIds by viewModel.favoriteIds.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
 
@@ -89,6 +90,7 @@ fun PlantSearchScreen(
             item {
                 FilterPanel(
                     state       = state,
+                    query       = query,
                     onQueryChanged   = viewModel::onQueryChanged,
                     onPhChanged      = viewModel::onPhChanged,
                     onGpsClick       = viewModel::useDeviceLocation,
@@ -136,6 +138,7 @@ fun PlantSearchScreen(
 @Composable
 private fun FilterPanel(
     state: SearchUiState,
+    query: String,
     onQueryChanged: (String) -> Unit,
     onPhChanged: (Float, Float) -> Unit,
     onGpsClick: () -> Unit,
@@ -151,7 +154,7 @@ private fun FilterPanel(
 
         // Search field
         OutlinedTextField(
-            value         = state.query,
+            value         = query,
             onValueChange = onQueryChanged,
             modifier      = Modifier.fillMaxWidth(),
             placeholder   = { Text("Search plants…", color = FlowerbedTheme.colors.textSecondary) },
