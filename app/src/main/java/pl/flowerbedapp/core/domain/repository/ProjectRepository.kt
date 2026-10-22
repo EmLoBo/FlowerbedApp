@@ -10,13 +10,13 @@ interface ProjectRepository {
     suspend fun saveProject(project: Project): Long
     suspend fun deleteProject(id: Long)
     suspend fun addPlantToProject(projectId: Long, plant: Plant)
-    suspend fun removePlantFromProject(projectId: Long, plantId: Int)
+    suspend fun removePlantFromProject(projectId: Long, plantId: String)
 
     /** Id of the single favorites project, creating it on first use. */
     suspend fun getOrCreateFavorites(): Long
 
     /** Ids of plants currently marked as favorite. */
-    fun observeFavoritePlantIds(): Flow<Set<Int>>
+    fun observeFavoritePlantIds(): Flow<Set<String>>
 
     /** Adds the plant to favorites, or removes it if it is already there. */
     suspend fun toggleFavorite(plant: Plant)

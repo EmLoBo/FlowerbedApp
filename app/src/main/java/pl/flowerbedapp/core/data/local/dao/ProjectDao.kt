@@ -24,14 +24,14 @@ interface ProjectDao {
     @Query("SELECT * FROM projects WHERE is_favorites = 1 LIMIT 1")
     suspend fun getFavoritesProject(): ProjectEntity?
 
-    /** Plant ids sitting in the favorites project — drives the ♥ badge on plant cards. */
+    /** Names of plants in the favorites project — drives the ♥ badge on plant cards. */
     @Query(
         """
-        SELECT plant_id FROM project_plants
+        SELECT plant_name FROM project_plants
         WHERE project_id = (SELECT id FROM projects WHERE is_favorites = 1 LIMIT 1)
         """
     )
-    fun observeFavoritePlantIds(): Flow<List<Int>>
+    fun observeFavoritePlantNames(): Flow<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProject(project: ProjectEntity): Long
@@ -40,9 +40,13 @@ interface ProjectDao {
     @Query("DELETE FROM projects WHERE id = :id AND is_favorites = 0")
     suspend fun deleteProject(id: Long)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // Adding a plant that is already in the project is a no-op
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPlant(plant: ProjectPlantEntity)
 
-    @Query("DELETE FROM project_plants WHERE project_id = :projectId AND plant_id = :plantId")
-    suspend fun deletePlant(projectId: Long, plantId: Int)
+    @Query("DELETE FROM project_plants WHERE project_id = :projectId AND plant_name = :plantName")
+    suspend fun deletePlant(projectId: Long, plantName: String)
+
+    @Query("SELECT EXISTS(SELECT 1 FROM project_plants WHERE project_id = :projectId AND plant_name = :plantName)")
+    suspend fun containsPlant(projectId: Long, plantName: String): Boolean
 }

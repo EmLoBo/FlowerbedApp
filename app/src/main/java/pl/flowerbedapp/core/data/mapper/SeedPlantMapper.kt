@@ -2,11 +2,14 @@ package pl.flowerbedapp.core.data.mapper
 
 import pl.flowerbedapp.core.data.local.entity.PlantEntity
 import pl.flowerbedapp.core.data.local.seed.SeedPlantDto
+import pl.flowerbedapp.core.domain.model.LifeForm
+import pl.flowerbedapp.core.domain.model.Moisture
+import pl.flowerbedapp.core.domain.model.SoilType
 import pl.flowerbedapp.core.util.searchKeyOf
 
-private val SOIL_TYPES = setOf("SANDY", "LOAMY", "CLAY", "PEATY", "CHALKY")
-private val MOISTURE   = setOf("DRY", "MEDIUM", "WET")
-private val LIFE_FORMS = setOf("PERENNIAL", "ANNUAL", "BIENNIAL", "SHRUB", "TREE", "CLIMBER", "GRASS", "BULB")
+private val SOIL_TYPES = SoilType.entries.map { it.name }.toSet()
+private val MOISTURE   = Moisture.entries.map { it.name }.toSet()
+private val LIFE_FORMS = LifeForm.entries.map { it.name }.toSet()
 
 /** Null when the record breaks the schema — the seeder skips it rather than crashing at startup. */
 fun SeedPlantDto.toEntityOrNull(): PlantEntity? {

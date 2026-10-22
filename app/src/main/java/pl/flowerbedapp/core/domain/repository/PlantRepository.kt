@@ -8,8 +8,7 @@ import pl.flowerbedapp.core.domain.model.Result
 interface PlantRepository {
 
     suspend fun searchPlants(params: GardenSearchParams): Result<List<Plant>>
-    suspend fun getPlantDetail(id: Int): Result<Plant>
-    suspend fun getSuggestions(query: String): Result<List<Plant>>
+    suspend fun getPlantDetail(id: String): Result<Plant>
 
     fun browseAllPlants(query: String, page: Int): Flow<Result<List<Plant>>>
 }

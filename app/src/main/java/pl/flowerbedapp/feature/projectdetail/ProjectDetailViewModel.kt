@@ -22,7 +22,7 @@ class ProjectDetailViewModel @Inject constructor(
 
     private val projectId: Long = checkNotNull(handle["projectId"])
 
-    val favoriteIds: StateFlow<Set<Int>> = observeFavoriteIds()
+    val favoriteIds: StateFlow<Set<String>> = observeFavoriteIds()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     // Derived from the observed project list, so the screen updates itself when the

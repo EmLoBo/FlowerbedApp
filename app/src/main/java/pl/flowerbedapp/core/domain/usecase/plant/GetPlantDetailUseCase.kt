@@ -8,5 +8,5 @@ import javax.inject.Inject
 class GetPlantDetailUseCase @Inject constructor(
     private val repo: PlantRepository,
 ) {
-    suspend operator fun invoke(id: Int): Result<Plant> = repo.getPlantDetail(id)
+    suspend operator fun invoke(id: String): Result<Plant> = repo.getPlantDetail(id)
 }

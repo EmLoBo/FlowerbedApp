@@ -14,17 +14,17 @@ fun Project.toEntity() = ProjectEntity(
     isFavorites = isFavorites,
 )
 
-fun Plant.toProjectPlantEntity(projectId: Long, json: String) = ProjectPlantEntity(
+fun Plant.toProjectPlantEntity(projectId: Long) = ProjectPlantEntity(
     projectId = projectId,
-    plantId   = id,
-    plantJson = json,
+    plantName = id,
 )
 
-fun ProjectWithPlants.toDomain(deserialize: (String) -> Plant?): Project = Project(
+fun ProjectWithPlants.toDomain(): Project = Project(
     id          = project.id,
     name        = project.name,
     description = project.description,
     createdAt   = project.createdAt,
-    plants      = plants.mapNotNull { deserialize(it.plantJson) },
+    // A relation has no ORDER BY — sort here, by the same key the plant lists use
+    plants      = plants.sortedBy { it.searchKey }.map { it.toDomain() },
     isFavorites = project.isFavorites,
 )

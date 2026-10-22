@@ -63,7 +63,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import pl.flowerbedapp.core.domain.model.LifeForm
+import pl.flowerbedapp.core.domain.model.Moisture
 import pl.flowerbedapp.core.domain.model.Plant
+import pl.flowerbedapp.core.domain.model.PlantSource
+import pl.flowerbedapp.core.domain.model.SoilType
 import pl.flowerbedapp.ui.theme.FlowerbedColors
 import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
@@ -126,10 +130,14 @@ fun PlantCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                plant.familyCommonName?.let { family ->
-                    Spacer(Modifier.height(Spacing.xs))
-                    GardenChip(label = family)
-                }
+                Spacer(Modifier.height(Spacing.xs))
+                Text(
+                    text     = plant.summaryLine(),
+                    style    = FlowerbedType.labelSmall,
+                    color    = FlowerbedColors.GardenGreen,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
 
             if (isFavorite) {
@@ -442,15 +450,20 @@ fun IconTextRow(
 // Wrapped in FlowerbedTheme so the dark palette renders correctly in the IDE.
 
 private val previewPlant = Plant(
-    id               = 1,
-    slug             = "rosa-rugosa",
-    commonName       = "Beach Rose",
-    scientificName   = "Rosa rugosa",
-    imageUrl         = null,
-    familyCommonName = "Rose family",
-    genus            = "Rosa",
-    specifications   = null,
-    growth           = null,
+    scientificName = "Lavandula angustifolia",
+    commonName     = "Lawenda wąskolistna",
+    commonNameEn   = "English lavender",
+    imageUrl       = null,
+    lifeForm       = LifeForm.SHRUB,
+    ph             = 6.5..8.0,
+    soilTypes      = setOf(SoilType.SANDY, SoilType.LOAMY, SoilType.CHALKY),
+    sunHours       = 6..12,
+    hardinessZones = 5..9,
+    moisture       = Moisture.DRY,
+    heightCm       = 40..60,
+    spreadCm       = 60,
+    bloomMonths    = listOf(6, 7, 8),
+    source         = PlantSource.SEED,
 )
 
 @Preview(name = "TopBar", showBackground = true, backgroundColor = 0xFF0F0F0F)

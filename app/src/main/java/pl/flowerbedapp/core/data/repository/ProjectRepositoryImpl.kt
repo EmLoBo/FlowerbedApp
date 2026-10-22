@@ -1,7 +1,5 @@
 package pl.flowerbedapp.core.data.repository
 
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import pl.flowerbedapp.core.data.local.dao.ProjectDao
@@ -18,34 +16,23 @@ import javax.inject.Singleton
 @Singleton
 class ProjectRepositoryImpl @Inject constructor(
     private val dao: ProjectDao,
-    moshi: Moshi,
 ) : ProjectRepository {
 
-    @OptIn(ExperimentalStdlibApi::class)
-    private val plantAdapter = moshi.adapter<Plant>()
-
-    private fun deserialize(json: String): Plant? =
-        runCatching { plantAdapter.fromJson(json) }.getOrNull()
-
     override fun observeProjects(): Flow<List<Project>> =
-        dao.observeProjectsWithPlants().map { list ->
-            list.map { it.toDomain(::deserialize) }
-        }
+        dao.observeProjectsWithPlants().map { list -> list.map { it.toDomain() } }
 
     override suspend fun getProject(id: Long): Project? =
-        dao.getProjectWithPlants(id)?.toDomain(::deserialize)
+        dao.getProjectWithPlants(id)?.toDomain()
 
     override suspend fun saveProject(project: Project): Long =
         dao.insertProject(project.toEntity())
 
     override suspend fun deleteProject(id: Long) = dao.deleteProject(id)
 
-    override suspend fun addPlantToProject(projectId: Long, plant: Plant) {
-        val json = plantAdapter.toJson(plant)
-        dao.insertPlant(plant.toProjectPlantEntity(projectId, json))
-    }
+    override suspend fun addPlantToProject(projectId: Long, plant: Plant) =
+        dao.insertPlant(plant.toProjectPlantEntity(projectId))
 
-    override suspend fun removePlantFromProject(projectId: Long, plantId: Int) =
+    override suspend fun removePlantFromProject(projectId: Long, plantId: String) =
         dao.deletePlant(projectId, plantId)
 
     override suspend fun getOrCreateFavorites(): Long =
@@ -58,16 +45,12 @@ class ProjectRepositoryImpl @Inject constructor(
             )
         )
 
-    override fun observeFavoritePlantIds(): Flow<Set<Int>> =
-        dao.observeFavoritePlantIds().map { it.toSet() }
+    override fun observeFavoritePlantIds(): Flow<Set<String>> =
+        dao.observeFavoritePlantNames().map { it.toSet() }
 
     override suspend fun toggleFavorite(plant: Plant) {
         val favoritesId = getOrCreateFavorites()
-        val alreadySaved = dao.getProjectWithPlants(favoritesId)
-            ?.plants.orEmpty()
-            .any { it.plantId == plant.id }
-
-        if (alreadySaved) dao.deletePlant(favoritesId, plant.id)
+        if (dao.containsPlant(favoritesId, plant.id)) dao.deletePlant(favoritesId, plant.id)
         else addPlantToProject(favoritesId, plant)
     }
 

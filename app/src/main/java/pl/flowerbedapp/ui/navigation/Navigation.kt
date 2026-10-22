@@ -1,5 +1,6 @@
 package pl.flowerbedapp.ui.navigation
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -29,7 +30,8 @@ sealed class Screen(val route: String) {
     data object Weather      : Screen("weather")
     data object Settings     : Screen("settings")
     data object PlantDetail  : Screen("plant_detail/{plantId}") {
-        fun route(plantId: Int) = "plant_detail/$plantId"
+        // Scientific names contain spaces; a route is a URI, so the name must be encoded
+        fun route(plantId: String) = "plant_detail/${Uri.encode(plantId)}"
     }
     data object ProjectDetail : Screen("project_detail/{projectId}") {
         fun route(projectId: Long) = "project_detail/$projectId"
@@ -83,7 +85,7 @@ fun FlowerbedNavHost(navController: NavHostController) {
 
         composable(
             route     = Screen.PlantDetail.route,
-            arguments = listOf(navArgument("plantId") { type = NavType.IntType }),
+            arguments = listOf(navArgument("plantId") { type = NavType.StringType }),
         ) {
             PlantDetailScreen(onBack = { navController.navigateUp() })
         }

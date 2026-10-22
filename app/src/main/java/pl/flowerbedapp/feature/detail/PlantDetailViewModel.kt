@@ -32,7 +32,7 @@ class PlantDetailViewModel @Inject constructor(
     observeFavoriteIds: ObserveFavoritePlantIdsUseCase,
 ) : ViewModel() {
 
-    private val plantId: Int = checkNotNull(handle["plantId"])
+    private val plantId: String = checkNotNull(handle["plantId"])
     private val _state = MutableStateFlow(DetailUiState())
     val state: StateFlow<DetailUiState> = _state.asStateFlow()
 

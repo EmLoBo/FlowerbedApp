@@ -27,7 +27,7 @@ class PlantDatabaseViewModel @Inject constructor(
     observeFavoriteIds: ObserveFavoritePlantIdsUseCase,
 ) : ViewModel() {
 
-    val favoriteIds: StateFlow<Set<Int>> = observeFavoriteIds()
+    val favoriteIds: StateFlow<Set<String>> = observeFavoriteIds()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     private val _query = MutableStateFlow("")

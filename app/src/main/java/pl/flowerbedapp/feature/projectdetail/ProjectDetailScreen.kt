@@ -25,7 +25,7 @@ import pl.flowerbedapp.ui.theme.Spacing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailScreen(
-    onPlantClick: (Int) -> Unit,
+    onPlantClick: (String) -> Unit,
     onBack: () -> Unit,
     viewModel: ProjectDetailViewModel = hiltViewModel(),
 ) {

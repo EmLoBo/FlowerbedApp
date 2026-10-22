@@ -31,6 +31,8 @@ import pl.flowerbedapp.ui.components.ErrorState
 import pl.flowerbedapp.ui.components.FlowerbedTopBar
 import pl.flowerbedapp.ui.components.GardenChip
 import pl.flowerbedapp.ui.components.LoadingState
+import pl.flowerbedapp.ui.components.toMonthsText
+import pl.flowerbedapp.ui.components.toRangeText
 import pl.flowerbedapp.ui.theme.FlowerbedColors
 import pl.flowerbedapp.ui.theme.FlowerbedTheme
 import pl.flowerbedapp.ui.theme.FlowerbedType
@@ -133,54 +135,28 @@ private fun PlantDetailContent(plant: Plant, modifier: Modifier = Modifier) {
             Text(plant.displayName, style = FlowerbedType.displayLarge, color = FlowerbedTheme.colors.textPrimary)
             Text(plant.scientificName, style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
 
-            plant.familyCommonName?.let {
+            Spacer(Modifier.height(Spacing.sm))
+            GardenChip(label = "${plant.lifeForm.emoji} ${plant.lifeForm.label}")
+
+            Spacer(Modifier.height(Spacing.lg))
+            Text("Growing conditions", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
+            Spacer(Modifier.height(Spacing.sm))
+            InfoRow("🧪", "Soil pH", plant.ph.toRangeText())
+            InfoRow("🌍", "Soil", plant.soilTypes.joinToString(", ") { it.label })
+            InfoRow("☀️", "Sun", "${plant.sunHours.toRangeText()} h a day")
+            InfoRow("❄️", "Hardiness zones", plant.hardinessZones.toRangeText())
+            InfoRow(plant.moisture.emoji, "Moisture", plant.moisture.label)
+
+            Spacer(Modifier.height(Spacing.lg))
+            Text("Size", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
+            Spacer(Modifier.height(Spacing.sm))
+            InfoRow("⬆️", "Height", "${plant.heightCm.toRangeText()} cm")
+            InfoRow("↔️", "Spread", "${plant.spreadCm} cm")
+
+            if (plant.bloomMonths.isNotEmpty()) {
                 Spacer(Modifier.height(Spacing.sm))
-                GardenChip(label = "Family: $it")
-            }
-
-            plant.genus?.let {
-                Spacer(Modifier.height(Spacing.xs))
-                GardenChip(label = "Genus: $it")
-            }
-
-            // Growth conditions
-            plant.growth?.let { growth ->
-                Spacer(Modifier.height(Spacing.lg))
-                Text("Growing conditions", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
-                Spacer(Modifier.height(Spacing.sm))
-
-                growth.phMinimum?.let { min ->
-                    growth.phMaximum?.let { max ->
-                        InfoRow("🧪", "Soil pH", "$min – $max")
-                    }
-                }
-                growth.light?.let { InfoRow("☀️", "Light (0–10)", it.toString()) }
-                growth.atmosphericHumidity?.let { InfoRow("💧", "Humidity", "$it%") }
-                growth.soilTexture?.let { InfoRow("🌍", "Soil texture (0–10)", it.toString()) }
-                growth.rowSpacingCm?.let { InfoRow("📏", "Row spacing", "${it.toInt()} cm") }
-                growth.spreadCm?.let { InfoRow("↔️", "Spread", "${it.toInt()} cm") }
-
-                if (growth.bloomMonths.isNotEmpty()) {
-                    Spacer(Modifier.height(Spacing.sm))
-                    Text("🌸 Blooms:", style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
-                    Text(growth.bloomMonths.joinToString(", "), color = FlowerbedTheme.colors.textPrimary, style = FlowerbedType.bodyMedium)
-                }
-                if (growth.growthMonths.isNotEmpty()) {
-                    Spacer(Modifier.height(Spacing.xs))
-                    Text("🌿 Growing:", style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
-                    Text(growth.growthMonths.joinToString(", "), color = FlowerbedTheme.colors.textPrimary, style = FlowerbedType.bodyMedium)
-                }
-            }
-
-            // Specifications
-            plant.specifications?.let { spec ->
-                Spacer(Modifier.height(Spacing.lg))
-                Text("Specifications", style = FlowerbedType.titleMedium, color = FlowerbedColors.GardenGreen)
-                Spacer(Modifier.height(Spacing.sm))
-                spec.averageHeightCm?.let { InfoRow("📐", "Average height", "${it.toInt()} cm") }
-                spec.maximumHeightCm?.let { InfoRow("⬆️", "Maximum height", "${it.toInt()} cm") }
-                spec.lifespan?.let { InfoRow("♻️", "Lifespan", it) }
-                spec.toxicity?.let { if (it.isNotBlank()) InfoRow("⚠️", "Toxicity", it) }
+                Text("🌸 Blooms:", style = FlowerbedType.bodyMedium, color = FlowerbedTheme.colors.textSecondary)
+                Text(plant.bloomMonths.toMonthsText(), color = FlowerbedTheme.colors.textPrimary, style = FlowerbedType.bodyMedium)
             }
         }
     }

@@ -34,8 +34,8 @@ data class SearchUiState(
     val endReached: Boolean = false,
      val phMin: Float = 5.5f,
     val phMax: Float = 7.0f,
-    val sunExposure: SunExposure = SunExposure.PARTIAL_SUN,
-    val soilType: SoilType = SoilType.LOAMY,
+    val sunExposure: SunExposure? = null,
+    val soilType: SoilType? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
     val usingDeviceLocation: Boolean = false,
@@ -51,7 +51,7 @@ class PlantSearchViewModel @Inject constructor(
     private val _state = MutableStateFlow(SearchUiState())
     val state: StateFlow<SearchUiState> = _state.asStateFlow()
 
-    val favoriteIds: StateFlow<Set<Int>> = observeFavoriteIds()
+    val favoriteIds: StateFlow<Set<String>> = observeFavoriteIds()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     // Single source of truth for the typed text. The text field reads this directly, so it
@@ -74,8 +74,8 @@ class PlantSearchViewModel @Inject constructor(
 
     fun onQueryChanged(q: String) { _query.value = q }
     fun onPhChanged(min: Float, max: Float) = _state.update { it.copy(phMin = min, phMax = max) }
-    fun onSunExposureChanged(s: SunExposure) = _state.update { it.copy(sunExposure = s) }
-    fun onSoilTypeChanged(t: SoilType) = _state.update { it.copy(soilType = t) }
+    fun onSunExposureChanged(s: SunExposure?) = _state.update { it.copy(sunExposure = s) }
+    fun onSoilTypeChanged(t: SoilType?) = _state.update { it.copy(soilType = t) }
     fun onManualLocation(lat: Double, lon: Double) =
         _state.update { it.copy(latitude = lat, longitude = lon, usingDeviceLocation = false) }
 
@@ -115,14 +115,11 @@ class PlantSearchViewModel @Inject constructor(
     private suspend fun runSearch(pageToLoad: Int, append: Boolean) {
         val s = _state.value
         val params = GardenSearchParams(
-            latitude = s.latitude,
-            longitude = s.longitude,
-            soilPhMin = s.phMin.toDouble(),
-            soilPhMax = s.phMax.toDouble(),
-            sunExposure = s.sunExposure,
+            ph       = s.phMin.toDouble()..s.phMax.toDouble(),
+            sunHours = s.sunExposure?.hours,
             soilType = s.soilType,
-            query = _query.value,
-            page = pageToLoad,
+            query    = _query.value,
+            page     = pageToLoad,
         )
         when (val result = searchPlants(params)) {
             is Result.Success -> {

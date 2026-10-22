@@ -1,66 +1,68 @@
 package pl.flowerbedapp.core.domain.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
 data class Plant(
-    val id: Int,
-    val slug: String,
-    val commonName: String?,
     val scientificName: String,
+    val commonName: String,
+    val commonNameEn: String?,
     val imageUrl: String?,
-    val familyCommonName: String?,
-    val genus: String?,
-    val specifications: PlantSpecifications?,
-    val growth: PlantGrowth?,
-) : Parcelable {
-    val displayName: String get() = commonName ?: scientificName
+    val lifeForm: LifeForm,
+    val ph: ClosedFloatingPointRange<Double>,
+    val soilTypes: Set<SoilType>,
+    val sunHours: IntRange,
+    val hardinessZones: IntRange,
+    val moisture: Moisture,
+    val heightCm: IntRange,
+    val spreadCm: Int,
+    val bloomMonths: List<Int>,
+    val source: PlantSource,
+) {
+    /** The scientific name is the plant's identity — stable across seed versions, unlike Trefle ids. */
+    val id: String get() = scientificName
+    val displayName: String get() = commonName
 }
 
-@Parcelize
-data class PlantSpecifications(
-    val averageHeightCm: Double?,
-    val maximumHeightCm: Double?,
-    val toxicity: String?,
-    val lifespan: String?,
-) : Parcelable
-
-@Parcelize
-data class PlantGrowth(
-    val phMinimum: Double?,
-    val phMaximum: Double?,
-    val light: Int?,              // 0–10 scale from Trefle
-    val atmosphericHumidity: Int?,
-    val soilTexture: Int?,        // 0–10 Trefle scale
-    val growthMonths: List<String>,
-    val bloomMonths: List<String>,
-    val rowSpacingCm: Double?,
-    val spreadCm: Double?,
-) : Parcelable
-
+/** Every criterion is optional — null means "don't filter on this". */
 data class GardenSearchParams(
-    val latitude: Double? = null,
-    val longitude: Double? = null,
-    val soilPhMin: Double = 5.5,
-    val soilPhMax: Double = 7.0,
-    val sunExposure: SunExposure = SunExposure.PARTIAL_SUN,
-    val soilType: SoilType = SoilType.LOAMY,
+    val ph: ClosedFloatingPointRange<Double>? = null,
+    val sunHours: IntRange? = null,
+    val soilType: SoilType? = null,
+    val hardinessZone: Int? = null,
     val query: String = "",
     val page: Int = 1,
 )
 
-enum class SunExposure(val lightValue: Int, val label: String, val emoji: String) {
-    FULL_SHADE(1,  "Full shade",    "🌑"),
-    PARTIAL_SHADE(3, "Partial shade", "🌥"),
-    PARTIAL_SUN(6,  "Partial sun",  "⛅"),
-    FULL_SUN(9,    "Full sun",     "☀️"),
+/** UI presets over sun hours; neighbours share an edge, so a borderline plant shows up in both. */
+enum class SunExposure(val hours: IntRange, val label: String, val emoji: String) {
+    FULL_SHADE(0..2,    "Full shade",    "🌑"),
+    PARTIAL_SHADE(2..4, "Partial shade", "🌥"),
+    PARTIAL_SUN(4..6,   "Partial sun",   "⛅"),
+    FULL_SUN(6..12,     "Full sun",      "☀️"),
 }
 
-enum class SoilType(val textureValue: Int, val label: String, val emoji: String) {
-    SANDY(2,  "Sandy", "🏖"),
-    LOAMY(5,  "Loamy", "🌱"),
-    CLAY(8,   "Clay",  "🧱"),
-    PEATY(3,  "Peaty", "🟤"),
-    CHALKY(7, "Chalky","⬜"),
+enum class SoilType(val label: String, val emoji: String) {
+    SANDY("Sandy",   "🏖"),
+    LOAMY("Loamy",   "🌱"),
+    CLAY("Clay",     "🧱"),
+    PEATY("Peaty",   "🟤"),
+    CHALKY("Chalky", "⬜"),
 }
+
+enum class Moisture(val label: String, val emoji: String) {
+    DRY("Dry",       "🌵"),
+    MEDIUM("Medium", "💧"),
+    WET("Wet",       "🌊"),
+}
+
+enum class LifeForm(val label: String, val emoji: String) {
+    PERENNIAL("Perennial", "🌿"),
+    ANNUAL("Annual",       "🌼"),
+    BIENNIAL("Biennial",   "🌸"),
+    SHRUB("Shrub",         "🪴"),
+    TREE("Tree",           "🌳"),
+    CLIMBER("Climber",     "🍃"),
+    GRASS("Grass",         "🌾"),
+    BULB("Bulb",           "🌷"),
+}
+
+/** Where a plant's data came from — drives the "estimated data" badge for AI entries. */
+enum class PlantSource { SEED, AI, USER }

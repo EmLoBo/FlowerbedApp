@@ -2,49 +2,54 @@ package pl.flowerbedapp.core.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import pl.flowerbedapp.core.data.local.dao.PlantDao
+import pl.flowerbedapp.core.data.local.seed.PlantSeeder
 import pl.flowerbedapp.core.data.mapper.toDomain
-import pl.flowerbedapp.core.data.remote.api.TrefleApi
 import pl.flowerbedapp.core.domain.model.GardenSearchParams
 import pl.flowerbedapp.core.domain.model.Plant
 import pl.flowerbedapp.core.domain.model.Result
 import pl.flowerbedapp.core.domain.repository.PlantRepository
 import pl.flowerbedapp.core.util.safeCall
+import pl.flowerbedapp.core.util.searchKeyOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class PlantRepositoryImpl @Inject constructor(
-    private val api: TrefleApi,
+    private val dao: PlantDao,
+    private val seeder: PlantSeeder,
 ) : PlantRepository {
 
-    override suspend fun searchPlants(params: GardenSearchParams): Result<List<Plant>> =
-        safeCall {
-            api.filterPlants(
-                // Trefle's light/soil_texture data is too sparse to filter on (a range filter
-                // excludes every plant with a null value → empty results). Filter by pH only.
-                phMinRange = ",${params.soilPhMax}",
-                phMaxRange = "${params.soilPhMin},",
-                query      = params.query.ifBlank { null },
-                page       = params.page,
-            ).data.map { it.toDomain() }
+    override suspend fun searchPlants(params: GardenSearchParams): Result<List<Plant>> {
+        // Right after install the first query can arrive while seeding is still running — wait for it
+        seeder.seedIfNeeded()
+        return safeCall {
+            dao.find(
+                phMin  = params.ph?.start,
+                phMax  = params.ph?.endInclusive,
+                sunMin = params.sunHours?.first,
+                sunMax = params.sunHours?.last,
+                soil   = params.soilType?.name,
+                zone   = params.hardinessZone,
+                query  = searchKeyOf(params.query),
+                limit  = PAGE_SIZE,
+                offset = (params.page - 1) * PAGE_SIZE,
+            ).map { it.toDomain() }
         }
-
-
-
-    // Keep the id we successfully queried with: Trefle's detail payload reports a different
-    // id (species vs plant), and storing that one makes later /plants/{id} lookups resolve
-    // to a completely different plant.
-    override suspend fun getPlantDetail(id: Int): pl.flowerbedapp.core.domain.model.Result<Plant> =
-        safeCall { api.getPlantById(id).data.toDomain().copy(id = id) }
-
-    override suspend fun getSuggestions(query: String): pl.flowerbedapp.core.domain.model.Result<List<Plant>> =
-        safeCall { api.searchPlants(query, page = 1).data.take(5).map { it.toDomain() } }
-
-    override fun browseAllPlants(query: String, page: Int): Flow<pl.flowerbedapp.core.domain.model.Result<List<Plant>>> = flow {
-        emit(Result.Loading)
-        emit(safeCall {
-            if (query.isBlank()) api.getPlants(page).data.map { it.toDomain() }
-            else api.searchPlants(query, page).data.map { it.toDomain() }
-        })
     }
+
+    override suspend fun getPlantDetail(id: String): Result<Plant> {
+        seeder.seedIfNeeded()
+        return safeCall {
+            requireNotNull(dao.getByName(id)) { "No plant named $id" }.toDomain()
+        }
+    }
+
+    override fun browseAllPlants(query: String, page: Int): Flow<Result<List<Plant>>> = flow {
+        emit(Result.Loading)
+        emit(searchPlants(GardenSearchParams(query = query, page = page)))
+    }
+
+    // Must match the ViewModels' PAGE_SIZE: a page shorter than this is how they detect the end
+    private companion object { const val PAGE_SIZE = 20 }
 }

@@ -10,7 +10,7 @@ class SearchPlantsUseCase @Inject constructor(
     private val repo: PlantRepository,
 ) {
     suspend operator fun invoke(params: GardenSearchParams): Result<List<Plant>> {
-        if (params.soilPhMin > params.soilPhMax) {
+        if (params.ph?.isEmpty() == true) {
             return Result.Error(IllegalArgumentException("pH min must be ≤ pH max"))
         }
         return repo.searchPlants(params)
