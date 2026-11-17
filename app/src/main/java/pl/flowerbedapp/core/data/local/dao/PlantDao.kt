@@ -18,9 +18,10 @@ interface PlantDao {
     suspend fun countBySource(source: String): Int
 
     /**
-     * Garden filter — every criterion is optional (null / blank = ignore it).
-     * Ranges match by overlap: the plant's tolerated range must touch the bed's range,
+     * Garden filter. Ranges match by overlap: the plant's tolerated range must touch the bed's range,
      * so a single measured value works too (pass it as both min and max).
+     * Nullable criteria are skipped when null; [moistures] must always list the accepted classes —
+     * pass all of them for "any moisture".
      * [query] must already be normalized the same way as `search_key`.
      */
     @Query(
@@ -31,6 +32,7 @@ interface PlantDao {
           AND (:sunMin IS NULL OR sun_hours_max >= :sunMin)
           AND (:sunMax IS NULL OR sun_hours_min <= :sunMax)
           AND (:soil IS NULL OR soil_types LIKE '%,' || :soil || ',%')
+          AND moisture IN (:moistures)
           AND (:zone IS NULL OR :zone BETWEEN hardiness_zone_min AND hardiness_zone_max)
           AND (:query = '' OR search_key LIKE '%' || :query || '%')
         ORDER BY search_key
@@ -43,6 +45,7 @@ interface PlantDao {
         sunMin: Int?,
         sunMax: Int?,
         soil: String?,
+        moistures: List<String>,
         zone: Int?,
         query: String,
         limit: Int,

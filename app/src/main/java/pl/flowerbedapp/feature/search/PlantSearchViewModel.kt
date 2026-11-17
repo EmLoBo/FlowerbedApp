@@ -17,14 +17,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.flowerbedapp.core.domain.model.GardenSearchParams
+import pl.flowerbedapp.core.domain.model.Moisture
 import pl.flowerbedapp.core.domain.model.Plant
 import pl.flowerbedapp.core.domain.model.Result
 import pl.flowerbedapp.core.domain.model.SoilType
-import pl.flowerbedapp.core.domain.model.SunExposure
 import pl.flowerbedapp.core.domain.usecase.location.GetLocationUseCase
 import pl.flowerbedapp.core.domain.usecase.plant.SearchPlantsUseCase
 import pl.flowerbedapp.core.domain.usecase.project.ObserveFavoritePlantIdsUseCase
 import javax.inject.Inject
+
+/** pH slider bounds; the full span means "no pH filter". Garden soils don't fall outside it. */
+val PH_SLIDER_RANGE = 3.5f..9.0f
+const val SUN_SLIDER_MAX = 12
 
 data class SearchUiState(
     val plants: List<Plant> = emptyList(),
@@ -32,14 +36,21 @@ data class SearchUiState(
     val isLoadingMore: Boolean = false,
     val error: String? = null,
     val endReached: Boolean = false,
-     val phMin: Float = 5.5f,
-    val phMax: Float = 7.0f,
-    val sunExposure: SunExposure? = null,
+    val phMin: Float = PH_SLIDER_RANGE.start,
+    val phMax: Float = PH_SLIDER_RANGE.endInclusive,
+    val sunHours: Int? = null,           // null = any amount of sun
     val soilType: SoilType? = null,
+    val moisture: Moisture? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
     val usingDeviceLocation: Boolean = false,
-)
+) {
+    val phFilterOn: Boolean
+        get() = phMin > PH_SLIDER_RANGE.start || phMax < PH_SLIDER_RANGE.endInclusive
+
+    val hasActiveFilters: Boolean
+        get() = phFilterOn || sunHours != null || soilType != null || moisture != null
+}
 
 @HiltViewModel
 class PlantSearchViewModel @Inject constructor(
@@ -74,8 +85,33 @@ class PlantSearchViewModel @Inject constructor(
 
     fun onQueryChanged(q: String) { _query.value = q }
     fun onPhChanged(min: Float, max: Float) = _state.update { it.copy(phMin = min, phMax = max) }
-    fun onSunExposureChanged(s: SunExposure?) = _state.update { it.copy(sunExposure = s) }
-    fun onSoilTypeChanged(t: SoilType?) = _state.update { it.copy(soilType = t) }
+    fun onSunHoursChanged(hours: Int?) = _state.update { it.copy(sunHours = hours) }
+
+    /** Sliders report every pixel of a drag — search once, when the finger lifts. */
+    fun onSliderReleased() = search()
+
+    fun onSoilTypeChanged(type: SoilType?) {
+        _state.update { it.copy(soilType = type) }
+        search()
+    }
+
+    fun onMoistureChanged(moisture: Moisture?) {
+        _state.update { it.copy(moisture = moisture) }
+        search()
+    }
+
+    fun clearFilters() {
+        _state.update {
+            it.copy(
+                phMin    = PH_SLIDER_RANGE.start,
+                phMax    = PH_SLIDER_RANGE.endInclusive,
+                sunHours = null,
+                soilType = null,
+                moisture = null,
+            )
+        }
+        search()
+    }
     fun onManualLocation(lat: Double, lon: Double) =
         _state.update { it.copy(latitude = lat, longitude = lon, usingDeviceLocation = false) }
 
@@ -115,9 +151,10 @@ class PlantSearchViewModel @Inject constructor(
     private suspend fun runSearch(pageToLoad: Int, append: Boolean) {
         val s = _state.value
         val params = GardenSearchParams(
-            ph       = s.phMin.toDouble()..s.phMax.toDouble(),
-            sunHours = s.sunExposure?.hours,
+            ph       = if (s.phFilterOn) s.phMin.toDouble()..s.phMax.toDouble() else null,
+            sunHours = s.sunHours?.let { it..it },
             soilType = s.soilType,
+            moisture = s.moisture,
             query    = _query.value,
             page     = pageToLoad,
         )

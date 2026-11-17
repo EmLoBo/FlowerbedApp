@@ -11,6 +11,7 @@ import org.junit.Test
 import pl.flowerbedapp.core.data.local.dao.PlantDao
 import pl.flowerbedapp.core.data.local.seed.PlantSeeder
 import pl.flowerbedapp.core.domain.model.GardenSearchParams
+import pl.flowerbedapp.core.domain.model.Moisture
 import pl.flowerbedapp.core.domain.model.Result
 import pl.flowerbedapp.core.domain.model.SoilType
 
@@ -23,7 +24,7 @@ class PlantRepositoryImplTest {
     @Before
     fun setUp() {
         coEvery { seeder.seedIfNeeded() } returns Result.Success(0)
-        coEvery { dao.find(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns emptyList()
+        coEvery { dao.find(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns emptyList()
     }
 
     @Test
@@ -33,6 +34,7 @@ class PlantRepositoryImplTest {
                 ph            = 5.5..6.5,
                 sunHours      = 2..4,
                 soilType      = SoilType.CLAY,
+                moisture      = Moisture.MEDIUM,
                 hardinessZone = 6,
                 query         = "Łubin",
                 page          = 3,
@@ -41,34 +43,36 @@ class PlantRepositoryImplTest {
 
         coVerify {
             dao.find(
-                phMin  = 5.5,
-                phMax  = 6.5,
-                sunMin = 2,
-                sunMax = 4,
-                soil   = "CLAY",
-                zone   = 6,
-                query  = "lubin",
-                limit  = 20,
-                offset = 40,
+                phMin     = 5.5,
+                phMax     = 6.5,
+                sunMin    = 2,
+                sunMax    = 4,
+                soil      = "CLAY",
+                moistures = listOf("DRY", "MEDIUM"),
+                zone      = 6,
+                query     = "lubin",
+                limit     = 20,
+                offset    = 40,
             )
         }
     }
 
     @Test
-    fun `missing criteria are passed as null so the dao ignores them`() = runTest {
+    fun `missing criteria switch their filters off`() = runTest {
         repo.searchPlants(GardenSearchParams())
 
         coVerify {
             dao.find(
-                phMin  = null,
-                phMax  = null,
-                sunMin = null,
-                sunMax = null,
-                soil   = null,
-                zone   = null,
-                query  = "",
-                limit  = 20,
-                offset = 0,
+                phMin     = null,
+                phMax     = null,
+                sunMin    = null,
+                sunMax    = null,
+                soil      = null,
+                moistures = listOf("DRY", "MEDIUM", "WET"),
+                zone      = null,
+                query     = "",
+                limit     = 20,
+                offset    = 0,
             )
         }
     }
@@ -79,7 +83,7 @@ class PlantRepositoryImplTest {
 
         coVerifyOrder {
             seeder.seedIfNeeded()
-            dao.find(any(), any(), any(), any(), any(), any(), any(), any(), any())
+            dao.find(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
         }
     }
 

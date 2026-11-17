@@ -6,6 +6,7 @@ import pl.flowerbedapp.core.data.local.dao.PlantDao
 import pl.flowerbedapp.core.data.local.seed.PlantSeeder
 import pl.flowerbedapp.core.data.mapper.toDomain
 import pl.flowerbedapp.core.domain.model.GardenSearchParams
+import pl.flowerbedapp.core.domain.model.Moisture
 import pl.flowerbedapp.core.domain.model.Plant
 import pl.flowerbedapp.core.domain.model.Result
 import pl.flowerbedapp.core.domain.repository.PlantRepository
@@ -25,15 +26,17 @@ class PlantRepositoryImpl @Inject constructor(
         seeder.seedIfNeeded()
         return safeCall {
             dao.find(
-                phMin  = params.ph?.start,
-                phMax  = params.ph?.endInclusive,
-                sunMin = params.sunHours?.first,
-                sunMax = params.sunHours?.last,
-                soil   = params.soilType?.name,
-                zone   = params.hardinessZone,
-                query  = searchKeyOf(params.query),
-                limit  = PAGE_SIZE,
-                offset = (params.page - 1) * PAGE_SIZE,
+                phMin     = params.ph?.start,
+                phMax     = params.ph?.endInclusive,
+                sunMin    = params.sunHours?.first,
+                sunMax    = params.sunHours?.last,
+                soil      = params.soilType?.name,
+                // No bed moisture given → accept every class, i.e. no filtering
+                moistures = (params.moisture?.suitablePlants() ?: Moisture.entries).map { it.name },
+                zone      = params.hardinessZone,
+                query     = searchKeyOf(params.query),
+                limit     = PAGE_SIZE,
+                offset    = (params.page - 1) * PAGE_SIZE,
             ).map { it.toDomain() }
         }
     }
